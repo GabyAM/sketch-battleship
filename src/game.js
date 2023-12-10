@@ -69,3 +69,42 @@ export class Player {
 	}
 }
 
+export const gameController = (function () {
+	let currentPlayer;
+	let player1;
+	let gameBoard1;
+	let player2;
+	let gameBoard2;
+
+	function init() {
+		gameBoard1 = new GameBoard(10);
+		gameBoard2 = new GameBoard(10);
+		player1 = new Player("player 1", gameBoard2);
+		player2 = new Player("player 2", gameBoard1);
+
+		// provisional population
+		gameBoard1.placeShip(2, 3, 4);
+		gameBoard2.placeShip(4, 2, 2);
+		gameBoard1.placeShip(5, 5, 4);
+		gameBoard2.placeShip(8, 6, 4);
+
+		currentPlayer = player1;
+	}
+
+	function getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	function isGameOver() {
+		return !(gameBoard1.isShipLeft() && gameBoard2.isShipLeft());
+	}
+	function checkGameOver() {}
+
+	function playTurn(row, col) {
+		const isHit = currentPlayer.attack(row, col);
+		currentPlayer = currentPlayer === player1 ? player2 : player1;
+		// checkGameOver();
+		return isHit;
+	}
+	return { init, getCurrentPlayer, isGameOver, playTurn };
+})();
