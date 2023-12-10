@@ -28,3 +28,10 @@ it("Gameboard class methods test", () => {
 	expect(() => gameboard.receiveHit(11, 11)).toThrow("");
 });
 
+it("Player class methods test", () => {
+	const gameboard = new GameBoard(10);
+	gameboard.placeShip(0, 0, 3);
+	const player = new Player("player", gameboard);
+	expect(player.attack(0, 0)).toBe(true);
+	expect(player.attack(0, 1)).toBe(false);
+});
