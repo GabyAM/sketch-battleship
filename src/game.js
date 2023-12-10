@@ -52,3 +52,20 @@ export class GameBoard {
 		});
 	}
 }
+
+export class Player {
+	constructor(name, enemyGameboard) {
+		this.name = name;
+		this.enemyGameboard = enemyGameboard;
+	}
+
+	attack(row, col) {
+		if (this.enemyGameboard.board[row][col] === null) {
+			this.enemyGameboard.board[row][col] = false;
+		} else {
+			this.enemyGameboard.board[row][col] = true;
+		}
+		return this.enemyGameboard.board[row][col];
+	}
+}
+
