@@ -9,3 +9,22 @@ it("Ship class methods test", () => {
 	expect(ship.hitsReceived).toBe(4);
 	expect(ship.isSunk()).toBe(true);
 });
+
+it("Gameboard class methods test", () => {
+	const gameboard = new GameBoard(10);
+	const totalCells = gameboard.board.length * gameboard.board[0].length;
+	expect(totalCells).toBe(100);
+
+	gameboard.placeShip(0, 0, 4);
+	expect(gameboard.board[0][0].length).toBe(4);
+
+	expect(gameboard.board[0][0].hitsReceived).toBe(0);
+	gameboard.receiveHit(0, 0);
+	expect(gameboard.board[0][0].hitsReceived).toBe(1);
+
+	gameboard.receiveHit(2, 2);
+	expect(gameboard.board[2][2]).toBe(false);
+
+	expect(() => gameboard.receiveHit(11, 11)).toThrow("");
+});
+
