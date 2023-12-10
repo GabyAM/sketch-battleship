@@ -1,3 +1,5 @@
+import { pubsub } from "../pubsub";
+
 it("pubsub module methods test", () => {
 	const testFunction = jest.fn();
 	pubsub.subscribe("valueUpdated", testFunction);
