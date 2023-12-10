@@ -1,3 +1,4 @@
+import { GameBoard, Player, Ship, gameController } from "../game.js";
 it("Ship class methods test", () => {
 	const ship = new Ship(4);
 	expect(ship.isSunk()).toBe(false);
@@ -34,4 +35,12 @@ it("Player class methods test", () => {
 	const player = new Player("player", gameboard);
 	expect(player.attack(0, 0)).toBe(true);
 	expect(player.attack(0, 1)).toBe(false);
+});
+
+it("Game controller module methods test", () => {
+	gameController.init();
+	expect(gameController.getCurrentPlayer().name).toBe("player 1");
+	expect(gameController.playTurn(5, 2)).toBe(true);
+	expect(gameController.getCurrentPlayer().name).toBe("player 2");
+	expect(gameController.playTurn(9, 9)).toBe(false);
 });
