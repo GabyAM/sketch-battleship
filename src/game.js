@@ -1,3 +1,4 @@
+import { pubsub } from "./pubsub.js";
 
 export class Ship {
 	constructor(length) {
@@ -89,6 +90,9 @@ export const gameController = (function () {
 		gameBoard1.placeShip(5, 5, 4);
 		gameBoard2.placeShip(8, 6, 4);
 
+		pubsub.publish("gameLoaded", gameBoard2.board);
+		pubsub.publish("gameLoaded", gameBoard1.board);
+
 		currentPlayer = player1;
 	}
 
@@ -101,11 +105,20 @@ export const gameController = (function () {
 	}
 	function checkGameOver() {}
 
-	function playTurn(row, col) {
+	// subscribe to dom 'targetCell' function
+	function playTurn({ row, col }) {
 		const isHit = currentPlayer.attack(row, col);
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
 		// checkGameOver();
+		pubsub.publish("turnPlayed", {
+			board: currentPlayer === player1 ? 1 : 0,
+			row,
+			col,
+			isHit,
+		});
 		return isHit;
 	}
+
+	pubsub.subscribe("cellSelected", playTurn);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();
