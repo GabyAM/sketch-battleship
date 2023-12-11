@@ -27,11 +27,11 @@ export class GameBoard {
 			throw new Error("");
 		}
 		if (this.board[row][col] === null) {
-			if (row + length <= this.board.length) {
+			if (col + length <= this.board.length) {
 				// adds the ship to each cell
 				const newShip = new Ship(length);
 				for (let i = 0; i < length; i++) {
-					this.board[row + i][col] = newShip;
+					this.board[row][col + i] = newShip;
 				}
 			}
 		}
