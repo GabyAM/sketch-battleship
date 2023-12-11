@@ -8,10 +8,10 @@ function getCellByCoordinates(board, row, col) {
 }
 
 export const domController = (function () {
-	pubsub.subscribe("gameLoaded", createDomBoard);
+	pubsub.subscribe("boardsUpdated", renderBoards);
 	pubsub.subscribe("turnPlayed", styleCell);
 
-	function createDomBoard(board) {
+	function createDomBoard(board, index) {
 		function createBoardCell() {
 			const cell = document.createElement("div");
 			cell.className = "cell";
@@ -20,6 +20,7 @@ export const domController = (function () {
 
 		const domBoard = document.createElement("div");
 		domBoard.className = "board";
+		domBoard.dataset.player = index + 1;
 
 		for (let i = 0; i < board.length; i++) {
 			for (let j = 0; j < board.length; j++) {
@@ -29,8 +30,18 @@ export const domController = (function () {
 				domBoard.appendChild(cell);
 			}
 		}
-		document.querySelector("body").appendChild(domBoard);
+		const playerArea = document.querySelectorAll(".player-area")[index];
+		if (playerArea.querySelector(".board")) {
+			playerArea.removeChild(playerArea.lastChild);
+		}
+		playerArea.appendChild(domBoard);
 		pubsub.publish("boardRendered", domBoard);
+	}
+
+	function renderBoards(boardArray) {
+		boardArray.forEach((board, index) => {
+			createDomBoard(board, index);
+		});
 	}
 
 	function styleCell({ board: boardNumber, row, col, isHit }) {

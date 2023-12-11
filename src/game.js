@@ -85,13 +85,8 @@ export const gameController = (function () {
 		player2 = new Player("player 2", gameBoard1);
 
 		// provisional population
-		gameBoard1.placeShip(2, 3, 4);
-		gameBoard2.placeShip(4, 2, 2);
-		gameBoard1.placeShip(5, 5, 4);
-		gameBoard2.placeShip(8, 6, 4);
-
-		pubsub.publish("gameLoaded", gameBoard2.board);
-		pubsub.publish("gameLoaded", gameBoard1.board);
+		gameBoard1.placeShip(3, 3, 4);
+		pubsub.publish("boardsUpdated", [gameBoard1.board, gameBoard2.board]);
 
 		currentPlayer = player1;
 	}
