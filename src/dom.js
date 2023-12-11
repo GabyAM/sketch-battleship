@@ -12,10 +12,9 @@ export const domController = (function () {
 	pubsub.subscribe("turnPlayed", styleCell);
 
 	function createDomBoard(board) {
-		function createBoardCell(value) {
+		function createBoardCell() {
 			const cell = document.createElement("div");
 			cell.className = "cell";
-			cell.textContent = value;
 			return cell;
 		}
 
@@ -24,9 +23,9 @@ export const domController = (function () {
 
 		for (let i = 0; i < board.length; i++) {
 			for (let j = 0; j < board.length; j++) {
-				const cell = createBoardCell(board[i][j]);
+				const cell = createBoardCell();
 				cell.dataset.row = i;
-				cell.dataset.col = i;
+				cell.dataset.col = j;
 				domBoard.appendChild(cell);
 			}
 		}
