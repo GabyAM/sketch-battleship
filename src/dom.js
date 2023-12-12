@@ -13,6 +13,20 @@ export const domController = (function () {
 
 	function createDomBoard(board, index) {
 		function createBoardCell() {
+
+	const ships = document.querySelectorAll(".ship");
+	function handleDrag(e) {
+		const length = e.target.children.length;
+		const board = document.querySelector(".board");
+		board.addEventListener("dragover", (e) => e.preventDefault());
+		board.addEventListener("drop", (e) => {
+			const targetCell = e.target;
+			const { row, col } = targetCell.dataset;
+			pubsub.publish("shipPlaced", { row, col, length });
+		});
+	}
+	ships.forEach((ship) => ship.addEventListener("dragstart", handleDrag));
+
 			const cell = document.createElement("div");
 			cell.className = "cell";
 			return cell;
