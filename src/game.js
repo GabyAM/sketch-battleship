@@ -20,6 +20,7 @@ export class GameBoard {
 		for (let i = 0; i < size; i++) {
 			this.board[i] = Array(size).fill(null);
 		}
+		this.ships = [];
 	}
 
 	placeShip(row, col, length) {
@@ -30,9 +31,7 @@ export class GameBoard {
 			if (col + length <= this.board.length) {
 				// adds the ship to each cell
 				const newShip = new Ship(length);
-				for (let i = 0; i < length; i++) {
-					this.board[row][col + i] = newShip;
-				}
+				this.ships.push({ pos: [row, col], length: newShip.length });
 			}
 		}
 	}
