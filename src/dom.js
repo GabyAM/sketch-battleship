@@ -7,6 +7,20 @@ function getCellByCoordinates(board, row, col) {
 	);
 }
 
+function getGridCoords(event) {
+	// const grid = event.target;
+	const grid = document.querySelector(".grid.ships");
+	const rect = grid.getBoundingClientRect();
+	const cellSize = rect.width / 10;
+
+	const clickedX = event.clientX - rect.left;
+	const clickedY = event.clientY - rect.top;
+
+	const row = Math.floor(clickedY / cellSize);
+	const col = Math.floor(clickedX / cellSize);
+	return { row, col };
+}
+
 class DomShip {
 	constructor(length) {
 		this.element = this.createElement(length);
@@ -22,6 +36,34 @@ class DomShip {
 		ship.style.height = "40px";
 		return ship;
 	}
+
+	addDraggable(ship) {
+		let isDown = false;
+		let offsetX, offsetY;
+		ship.addEventListener("mousedown", (e) => {
+			isDown = true;
+			ship.style.position = "absolute";
+			ship.style.left = `${e.clientX - 10}px`;
+			ship.style.top = `${e.clientY - 10}px`;
+			const rect = ship.getBoundingClientRect();
+			offsetX = e.clientX - rect.left;
+			offsetY = e.clientY - rect.top;
+		});
+		window.addEventListener("mouseup", (e) => {
+			if (isDown) {
+				isDown = false;
+			}
+		});
+
+		window.addEventListener("mousemove", (e) => {
+			if (isDown) {
+				ship.style.left = `${e.clientX - offsetX}px`;
+				ship.style.top = `${e.clientY - offsetY}px`;
+
+			}
+		});
+	}
+}
 
 export const domController = (function () {
 	pubsub.subscribe("boardsUpdated", renderBoards);
