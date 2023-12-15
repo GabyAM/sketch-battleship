@@ -27,21 +27,6 @@ export const domController = (function () {
 	pubsub.subscribe("boardsUpdated", renderBoards);
 	pubsub.subscribe("turnPlayed", styleCell);
 
-	function createDomBoard(board, index) {
-		function createBoardCell() {
-
-	const ships = document.querySelectorAll(".ship");
-	function handleDrag(e) {
-		const length = e.target.children.length;
-		const board = document.querySelector(".board");
-		board.addEventListener("dragover", (e) => e.preventDefault());
-		board.addEventListener("drop", (e) => {
-			const targetCell = e.target;
-			const { row, col } = targetCell.dataset;
-			pubsub.publish("shipPlaced", { row, col, length });
-		});
-	}
-	ships.forEach((ship) => ship.addEventListener("dragstart", handleDrag));
 	setTimeout(() => {
 		const shipsArea = document.querySelector(".ships-area");
 		shipsArea.appendChild(new DomShip(5).element);
@@ -51,6 +36,8 @@ export const domController = (function () {
 		shipsArea.appendChild(new DomShip(2).element);
 	}, 0);
 
+	function createGrid(length) {
+		function createCell() {
 			const cell = document.createElement("div");
 			cell.className = "cell";
 			return cell;
@@ -58,11 +45,13 @@ export const domController = (function () {
 
 		const domBoard = document.createElement("div");
 		domBoard.className = "board";
-		domBoard.dataset.player = index + 1;
+		const grid = document.createElement("div");
+		grid.className = "grid";
 
-		for (let i = 0; i < board.length; i++) {
 			for (let j = 0; j < board.length; j++) {
-				const cell = createBoardCell();
+		for (let i = 0; i < length; i++) {
+			for (let j = 0; j < length; j++) {
+				const cell = createCell();
 				cell.dataset.row = i;
 				cell.dataset.col = j;
 				domBoard.appendChild(cell);
@@ -70,15 +59,58 @@ export const domController = (function () {
 		}
 		const playerArea = document.querySelectorAll(".player-area")[index];
 		if (playerArea.querySelector(".board")) {
-			playerArea.removeChild(playerArea.lastChild);
+
+		return grid;
+	}
+
+	function createDomBoard(length, index) {
+		const domBoard = createGrid(length);
+		domBoard.classList.add("board");
+		domBoard.dataset.player = index + 1;
+
+		const boardsArea = document.querySelectorAll(".boards")[index];
+		if (boardsArea.querySelector(".board")) {
+			boardsArea.removeChild(boardsArea.querySelector(".grid.board"));
 		}
-		playerArea.appendChild(domBoard);
-		pubsub.publish("boardRendered", domBoard);
+		boardsArea.appendChild(domBoard);
+		return domBoard;
+	}
+	function createShipsBoard(index) {
+		const shipsBoard = document.createElement("div");
+		shipsBoard.className = "grid ships";
+
+		const boardsArea = document.querySelectorAll(".boards")[index];
+		if (boardsArea.querySelector(".ships")) {
+			boardsArea.removeChild(boardsArea.querySelector(".ships"));
+		boardsArea.appendChild(shipsBoard);
+		return shipsBoard;
+	}
+
+	function renderShips(board, ships) {
+		ships.forEach((ship) => {
+			const domShip = document.createElement("div");
+			domShip.className = "ship";
+			domShip.dataset.length = ship.length;
+
+			domShip.style.width = `calc(var(--cell-size) * ${ship.length})`;
+			domShip.style.height = `var(--cell-size)`;
+
+			domShip.style.backgroundColor = `rgba(0,0,0,0.3)`;
+			board.appendChild(domShip);
+			domShip.style.gridRow = `${ship[0][0] + 1}/${
+				ship[0][1] + 1 + ship.length
+			}`;
+			domShip.style.gridColumnStart = `${ship[0][1] + 1}`;
+		});
 	}
 
 	function renderBoards(boardArray) {
 		boardArray.forEach((board, index) => {
 			createDomBoard(board, index);
+			pubsub.publish("boardRendered", domBoard);
+
+			const shipsBoard = createShipsBoard(index);
+			renderShips(shipsBoard, data.ships);
 		});
 	}
 
