@@ -38,6 +38,8 @@ class DomShip {
 	}
 
 	addDraggable(ship) {
+		const shipsGrid = document.querySelector(".grid.ships");
+
 		let isDown = false;
 		let offsetX, offsetY;
 		ship.addEventListener("mousedown", (e) => {
@@ -52,6 +54,18 @@ class DomShip {
 		window.addEventListener("mouseup", (e) => {
 			if (isDown) {
 				isDown = false;
+				const { row, col } = getGridCoords(e);
+				if (row <= 10 && col + this.length <= 10) {
+					if (ship.parentElement !== shipsGrid) {
+						shipsGrid.appendChild(ship);
+					}
+					ship.style.gridRowStart = `${row + 1}`;
+					ship.style.gridColumn = `${col + 1} / ${
+						col + 1 + this.length
+					}`;
+
+					ship.style.position = "static";
+				}
 			}
 		});
 
