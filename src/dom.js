@@ -7,6 +7,22 @@ function getCellByCoordinates(board, row, col) {
 	);
 }
 
+class DomShip {
+	constructor(length) {
+		this.element = this.createElement(length);
+		this.addDraggable(this.element);
+		this.length = length;
+		this.isRotated = false;
+	}
+
+	createElement(length) {
+		const ship = document.createElement("div");
+		ship.className = "ship";
+		ship.style.width = `${40 * length}px`;
+		ship.style.height = "40px";
+		return ship;
+	}
+
 export const domController = (function () {
 	pubsub.subscribe("boardsUpdated", renderBoards);
 	pubsub.subscribe("turnPlayed", styleCell);
@@ -26,6 +42,14 @@ export const domController = (function () {
 		});
 	}
 	ships.forEach((ship) => ship.addEventListener("dragstart", handleDrag));
+	setTimeout(() => {
+		const shipsArea = document.querySelector(".ships-area");
+		shipsArea.appendChild(new DomShip(5).element);
+		shipsArea.appendChild(new DomShip(4).element);
+		shipsArea.appendChild(new DomShip(3).element);
+		shipsArea.appendChild(new DomShip(3).element);
+		shipsArea.appendChild(new DomShip(2).element);
+	}, 0);
 
 			const cell = document.createElement("div");
 			cell.className = "cell";
