@@ -85,22 +85,17 @@ export const domController = (function () {
 			return cell;
 		}
 
-		const domBoard = document.createElement("div");
-		domBoard.className = "board";
 		const grid = document.createElement("div");
 		grid.className = "grid";
 
-			for (let j = 0; j < board.length; j++) {
 		for (let i = 0; i < length; i++) {
 			for (let j = 0; j < length; j++) {
 				const cell = createCell();
 				cell.dataset.row = i;
 				cell.dataset.col = j;
-				domBoard.appendChild(cell);
+				grid.appendChild(cell);
 			}
 		}
-		const playerArea = document.querySelectorAll(".player-area")[index];
-		if (playerArea.querySelector(".board")) {
 
 		return grid;
 	}
@@ -124,6 +119,7 @@ export const domController = (function () {
 		const boardsArea = document.querySelectorAll(".boards")[index];
 		if (boardsArea.querySelector(".ships")) {
 			boardsArea.removeChild(boardsArea.querySelector(".ships"));
+		}
 		boardsArea.appendChild(shipsBoard);
 		return shipsBoard;
 	}
@@ -147,8 +143,8 @@ export const domController = (function () {
 	}
 
 	function renderBoards(boardArray) {
-		boardArray.forEach((board, index) => {
-			createDomBoard(board, index);
+		boardArray.forEach((data, index) => {
+			const domBoard = createDomBoard(data.board.length, index);
 			pubsub.publish("boardRendered", domBoard);
 
 			const shipsBoard = createShipsBoard(index);
