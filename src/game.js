@@ -23,15 +23,29 @@ export class GameBoard {
 		this.ships = [];
 	}
 
-	placeShip(row, col, length) {
+	placeShip(row, col, length, id) {
 		if (row > this.board.length || col > this.board.length) {
 			throw new Error("");
 		}
 		if (this.board[row][col] === null) {
 			if (col + length <= this.board.length) {
-				// adds the ship to each cell
 				const newShip = new Ship(length);
-				this.ships.push({ pos: [row, col], length: newShip.length });
+				const shipArray = [];
+				//first, deletes the previous position of the ship
+				for (let i = 0; i < this.board.length; i++) {
+					for (let j = 0; j < this.board.length; j++) {
+						if (this.board[i][j] === id) {
+							this.board[i][j] = null;
+						}
+					}
+				}
+
+				for (let i = 0; i < length; i++) {
+					this.board[row][col + i] = id;
+					shipArray.push([row, col + i]);
+				}
+
+				this.ships.push(shipArray);
 			}
 		}
 	}
@@ -90,6 +104,13 @@ export const gameController = (function () {
 		currentPlayer = player1;
 	}
 
+	function handlePlaceShip({ row, col, length, id }) {
+		console.log(
+			`handlePlaceShip: row: ${row}, col: ${col}, length: ${length}`
+		);
+		gameBoard1.placeShip(Number(row), Number(col), length, id);
+	}
+
 	function getCurrentPlayer() {
 		return currentPlayer;
 	}
@@ -114,5 +135,6 @@ export const gameController = (function () {
 	}
 
 	pubsub.subscribe("cellSelected", playTurn);
+	pubsub.subscribe("shipPlaced", handlePlaceShip);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();

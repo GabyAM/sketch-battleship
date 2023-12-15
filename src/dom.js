@@ -1,5 +1,11 @@
 import { pubsub } from "./pubsub.js";
 
+let count = 0;
+function getId() {
+	count++;
+	return count;
+}
+
 function getCellByCoordinates(board, row, col) {
 	const cells = [...board.querySelectorAll(".cell")];
 	return cells.find(
@@ -27,6 +33,7 @@ class DomShip {
 		this.addDraggable(this.element);
 		this.length = length;
 		this.isRotated = false;
+		this.id = getId();
 	}
 
 	createElement(length) {
@@ -65,6 +72,12 @@ class DomShip {
 					}`;
 
 					ship.style.position = "static";
+						pubsub.publish("shipPlaced", {
+							row,
+							col,
+							length: this.length,
+							id: this.id,
+						});
 				}
 			}
 		});
