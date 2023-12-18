@@ -133,6 +133,11 @@ export const gameController = (function () {
 		});
 	}
 
+	function startGame() {
+		pubsub.publish("boardsUpdated", [
+			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
+			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
+		]);
 	}
 
 	function handlePlaceShip({ row, col, length, id }) {

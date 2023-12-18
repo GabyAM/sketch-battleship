@@ -24,3 +24,12 @@ export function removeBoardEvents() {
 	);
 }
 
+const startGameButton = document.querySelector("#start");
+startGameButton.addEventListener(
+	"click",
+	() => {
+		swapBoardEvent(1);
+		pubsub.publish("startButtonPressed", null);
+	},
+	{ once: true }
+);
