@@ -71,6 +71,16 @@ export class GameBoard {
 	}
 
 	isShipLeft() {
+		const ships = Object.values(this.ships);
+		let shipLeft = false;
+		let i = 0;
+		while (!shipLeft && i < ships.length) {
+			if (!ships[i].ship.isSunk()) {
+				shipLeft = true;
+			}
+			i++;
+		}
+		return shipLeft;
 	}
 }
 
