@@ -50,6 +50,12 @@ export class GameBoard {
 				}
 			}
 		}
+	getValueAt(row, col) {
+		if (this.board[row][col]) {
+			return this.ships[this.board[row][col]].ship;
+		} else {
+			return this.board[row][col];
+		}
 	}
 
 	receiveHit(row, col) {
@@ -57,6 +63,8 @@ export class GameBoard {
 			throw new Error("");
 		}
 		if (this.board[row][col] && typeof this.board[row][col] !== "boolean") {
+			this.getValueAt(row, col).hit();
+			this.board[row][col] = true;
 		} else {
 			this.board[row][col] = false;
 		}
