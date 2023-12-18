@@ -113,10 +113,26 @@ export const gameController = (function () {
 		player1 = new Player("player 1", gameBoard2);
 		player2 = new Player("player 2", gameBoard1);
 
-
 		currentPlayer = player1;
+
 		gameBoard2.placeShip(2, 2, 3, 1);
 		gameBoard2.placeShip(3, 3, 4, 2);
+
+		pubsub.publish("boardsUpdated", [
+			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
+			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
+		]);
+	}
+
+	function mapShips(ships) {
+		return Object.values(ships).map((shipData) => {
+			return {
+				length: shipData.ship.length,
+				start: shipData.start,
+			};
+		});
+	}
+
 	}
 
 	function handlePlaceShip({ row, col, length, id }) {
