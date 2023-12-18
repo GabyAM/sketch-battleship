@@ -189,8 +189,6 @@ export const domController = (function () {
 			const attacksBoard = createGridLayer("attacks", index);
 			attacksBoard.dataset.player = index + 1;
 			renderAttacks(attacksBoard, data.board);
-
-			pubsub.publish("boardRendered", attacksBoard);
 		});
 	}
 
