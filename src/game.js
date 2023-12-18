@@ -14,13 +14,20 @@ export class Ship {
 		return this.hitsReceived === this.length;
 	}
 }
+
+/* gameBoard
+
+	board itself: a 10x10 matrix of null if there's no ship, or a reference to the ship if it's one
+	placeShip: should check if there's space for the ship according to the ship length
+
+*/
 export class GameBoard {
 	constructor(size) {
 		this.board = Array(size);
 		for (let i = 0; i < size; i++) {
 			this.board[i] = Array(size).fill(null);
 		}
-		this.ships = [];
+		this.ships = {};
 	}
 
 	placeShip(row, col, length, id) {
@@ -30,22 +37,17 @@ export class GameBoard {
 		if (this.board[row][col] === null) {
 			if (col + length <= this.board.length) {
 				const newShip = new Ship(length);
-				const shipArray = [];
-				//first, deletes the previous position of the ship
-				for (let i = 0; i < this.board.length; i++) {
-					for (let j = 0; j < this.board.length; j++) {
-						if (this.board[i][j] === id) {
-							this.board[i][j] = null;
-						}
-					}
+				if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
+					this.ships[`${id}`] = { ship: newShip, start: [row, col] };
+				} else {
+					const shipCells = this.ships[`${id}`].cells;
+					shipCells.forEach((coords) => {
+						this.board[coords[0]][coords[1]] = null;
+					});
 				}
-
 				for (let i = 0; i < length; i++) {
 					this.board[row][col + i] = id;
-					shipArray.push([row, col + i]);
 				}
-
-				this.ships.push(shipArray);
 			}
 		}
 	}
@@ -54,30 +56,26 @@ export class GameBoard {
 		if (row > this.board.length || col > this.board.length) {
 			throw new Error("");
 		}
-		if (this.board[row][col] instanceof Ship) {
-			this.board[row][col].hit();
+		if (this.board[row][col] && typeof this.board[row][col] !== "boolean") {
 		} else {
 			this.board[row][col] = false;
 		}
 	}
 
 	isShipLeft() {
-		return this.board.forEach((col) => {
-			col.some((cell) => cell instanceof Ship);
-		});
 	}
 }
 
 export class Player {
+	//if it's computer-controlled, select a random cell every turn.
+	//unless the previous move was a hit and that ship is still not sunk,
+	//in that case, select an adjacent cell
 	constructor(name, enemyGameboard) {
 		this.name = name;
 		this.enemyGameboard = enemyGameboard;
 	}
 
 	attack(row, col) {
-		if (this.enemyGameboard.board[row][col] === null) {
-			this.enemyGameboard.board[row][col] = false;
-		} else {
 			this.enemyGameboard.board[row][col] = true;
 		}
 		return this.enemyGameboard.board[row][col];
@@ -97,17 +95,13 @@ export const gameController = (function () {
 		player1 = new Player("player 1", gameBoard2);
 		player2 = new Player("player 2", gameBoard1);
 
-		// provisional population
-		gameBoard1.placeShip(3, 3, 4);
-		pubsub.publish("boardsUpdated", [gameBoard1.board, gameBoard2.board]);
 
 		currentPlayer = player1;
+		gameBoard2.placeShip(2, 2, 3, 1);
+		gameBoard2.placeShip(3, 3, 4, 2);
 	}
 
 	function handlePlaceShip({ row, col, length, id }) {
-		console.log(
-			`handlePlaceShip: row: ${row}, col: ${col}, length: ${length}`
-		);
 		gameBoard1.placeShip(Number(row), Number(col), length, id);
 	}
 
@@ -116,25 +110,27 @@ export const gameController = (function () {
 	}
 
 	function isGameOver() {
-		return !(gameBoard1.isShipLeft() && gameBoard2.isShipLeft());
+		return !gameBoard1.isShipLeft() || !gameBoard2.isShipLeft();
 	}
 	function checkGameOver() {}
 
-	// subscribe to dom 'targetCell' function
 	function playTurn({ row, col }) {
-		const isHit = currentPlayer.attack(row, col);
+		currentPlayer.attack(row, col);
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
 		// checkGameOver();
+
 		pubsub.publish("turnPlayed", {
 			board: currentPlayer === player1 ? 1 : 0,
+			board: currentPlayer === player1 ? 0 : 1,
 			row,
 			col,
-			isHit,
 		});
-		return isHit;
+		if (isGameOver()) {
+			pubsub.publish("gameEnded", null);
 	}
 
 	pubsub.subscribe("cellSelected", playTurn);
 	pubsub.subscribe("shipPlaced", handlePlaceShip);
+	pubsub.subscribe("startButtonPressed", startGame);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();
