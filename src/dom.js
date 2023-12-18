@@ -6,25 +6,19 @@ function getId() {
 	return count;
 }
 
-function getCellByCoordinates(board, row, col) {
-	const cells = [...board.querySelectorAll(".cell")];
-	return cells.find(
-		(cell) => cell.dataset.row === row && cell.dataset.col === col
-	);
-}
+export function getGridCoords(grid, event) {
+	function getCoords(e) {
+		const rect = grid.getBoundingClientRect();
+		const cellSize = rect.width / 10;
 
-function getGridCoords(event) {
-	// const grid = event.target;
-	const grid = document.querySelector(".grid.ships");
-	const rect = grid.getBoundingClientRect();
-	const cellSize = rect.width / 10;
+		const currentX = e.clientX - rect.left;
+		const currentY = e.clientY - rect.top;
 
-	const clickedX = event.clientX - rect.left;
-	const clickedY = event.clientY - rect.top;
-
-	const row = Math.floor(clickedY / cellSize);
-	const col = Math.floor(clickedX / cellSize);
-	return { row, col };
+		const row = Math.floor(currentY / cellSize);
+		const col = Math.floor(currentX / cellSize);
+		return { row, col };
+	}
+	return getCoords(event);
 }
 
 class DomShip {
@@ -61,7 +55,7 @@ class DomShip {
 		window.addEventListener("mouseup", (e) => {
 			if (isDown) {
 				isDown = false;
-				const { row, col } = getGridCoords(e);
+				const { row, col } = getGridCoords(shipsGrid, e);
 				if (row <= 10 && col + this.length <= 10) {
 					if (ship.parentElement !== shipsGrid) {
 						shipsGrid.appendChild(ship);
