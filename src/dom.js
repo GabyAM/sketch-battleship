@@ -105,50 +105,33 @@ export const domController = (function () {
 		shipsArea.appendChild(new DomShip(2).element);
 	}, 0);
 
-	function createGrid(length) {
+	function createDomBoard(length, index) {
 		function createCell() {
 			const cell = document.createElement("div");
 			cell.className = "cell";
 			return cell;
 		}
 
-		const grid = document.createElement("div");
-		grid.className = "grid";
-
+		const grid = createGridLayer("board", index);
 		for (let i = 0; i < length; i++) {
 			for (let j = 0; j < length; j++) {
 				const cell = createCell();
-				cell.dataset.row = i;
-				cell.dataset.col = j;
 				grid.appendChild(cell);
 			}
 		}
 
+		const boardsArea = document.querySelectorAll(".boards")[index];
+		boardsArea.appendChild(grid);
 		return grid;
 	}
 
-	function createDomBoard(length, index) {
-		const domBoard = createGrid(length);
-		domBoard.classList.add("board");
-		domBoard.dataset.player = index + 1;
+	function createGridLayer(gridClass, index) {
+		const grid = document.createElement("div");
+		grid.className = `grid ${gridClass}`;
 
 		const boardsArea = document.querySelectorAll(".boards")[index];
-		if (boardsArea.querySelector(".board")) {
-			boardsArea.removeChild(boardsArea.querySelector(".grid.board"));
-		}
-		boardsArea.appendChild(domBoard);
-		return domBoard;
-	}
-	function createShipsBoard(index) {
-		const shipsBoard = document.createElement("div");
-		shipsBoard.className = "grid ships";
-
-		const boardsArea = document.querySelectorAll(".boards")[index];
-		if (boardsArea.querySelector(".ships")) {
-			boardsArea.removeChild(boardsArea.querySelector(".ships"));
-		}
-		boardsArea.appendChild(shipsBoard);
-		return shipsBoard;
+		boardsArea.appendChild(grid);
+		return grid;
 	}
 
 	function renderShips(board, ships) {
@@ -160,22 +143,54 @@ export const domController = (function () {
 			domShip.style.width = `calc(var(--cell-size) * ${ship.length})`;
 			domShip.style.height = `var(--cell-size)`;
 
-			domShip.style.backgroundColor = `rgba(0,0,0,0.3)`;
 			board.appendChild(domShip);
-			domShip.style.gridRow = `${ship[0][0] + 1}/${
-				ship[0][1] + 1 + ship.length
+			domShip.style.gridRowStart = `${ship.start[0] + 1}`;
+			domShip.style.gridColumn = `${ship.start[1] + 1} /${
+				ship.start[1] + 1 + ship.length
 			}`;
-			domShip.style.gridColumnStart = `${ship[0][1] + 1}`;
 		});
+	}
+
+	function createAttackElement() {
+		function addAttackIcon(element) {
+			const icon = document.createElement("span");
+			icon.className = "material-symbols-outlined";
+			icon.textContent = "close";
+			element.appendChild(icon);
+		}
+		const element = document.createElement("div");
+		element.className = "attack";
+		addAttackIcon(element);
+		return element;
+	}
+
+	function renderAttacks(domBoard, board) {
+		for (let i = 0; i < board.length; i++) {
+			for (let j = 0; j < board.length; j++) {
+				if (board[i][j] === true || board[i][j] === false) {
+					const element = createAttackElement();
+					domBoard.appendChild(element);
+					element.style.gridRowStart = `${i + 1}`;
+					element.style.gridColumnStart = `${j + 1}`;
+				}
+			}
+		}
 	}
 
 	function renderBoards(boardArray) {
 		boardArray.forEach((data, index) => {
+			const boardsArea = document.querySelectorAll(".boards")[index];
+			boardsArea.innerHTML = "";
 			const domBoard = createDomBoard(data.board.length, index);
-			pubsub.publish("boardRendered", domBoard);
 
-			const shipsBoard = createShipsBoard(index);
+			const shipsBoard = createGridLayer("ships", index);
 			renderShips(shipsBoard, data.ships);
+
+			const attacksBoard = createGridLayer("attacks", index);
+			attacksBoard.dataset.player = index + 1;
+			renderAttacks(attacksBoard, data.board);
+
+			pubsub.publish("boardRendered", attacksBoard);
 		});
 	}
 
