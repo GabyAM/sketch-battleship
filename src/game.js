@@ -94,9 +94,7 @@ export class Player {
 	}
 
 	attack(row, col) {
-			this.enemyGameboard.board[row][col] = true;
-		}
-		return this.enemyGameboard.board[row][col];
+		this.enemyGameboard.receiveHit(row, col);
 	}
 }
 
