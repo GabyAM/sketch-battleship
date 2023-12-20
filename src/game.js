@@ -98,6 +98,75 @@ export class Player {
 	}
 }
 
+class AiPlayer extends Player {
+	constructor(name, enemyGameboard) {
+		super(name, enemyGameboard);
+		this.shipFound = false; //when the ship being attacked is sunk, this should reset to false
+		this.currentShip = { ship: null, pos: null };
+	}
+
+	attack() {
+		const getPossibleMoves = (pos) => {
+			const moves = [
+				//[1, 0],
+				//[-1, 0],
+				[0, 1],
+				[0, -1],
+			];
+			const possibleMoves = [];
+			for (const move of moves) {
+				let row = pos[0];
+				let col = pos[1];
+				while (this.enemyGameboard.board[row][col] === true) {
+					row += move[0];
+					col += move[1];
+				}
+				if (
+					row < 10 &&
+					col < 10 &&
+					typeof this.enemyGameboard.board[row][col] !== "boolean" //null or ship id
+				) {
+					possibleMoves.push([row, col]);
+				}
+			}
+			return possibleMoves;
+		};
+
+		let row, col;
+		if (this.shipFound) {
+			const moves = getPossibleMoves(this.currentShip.pos);
+			const randomMove = moves[Math.floor(Math.random() * moves.length)];
+			row = randomMove[0];
+			col = randomMove[1];
+		} else {
+			row = Math.floor(Math.random() * 10);
+			col = Math.floor(Math.random() * 10);
+
+			while (typeof this.enemyGameboard.board[row][col] === "boolean") {
+				row = Math.floor(Math.random() * 10);
+				col = Math.floor(Math.random() * 10);
+			}
+		}
+
+		const cellValue = this.enemyGameboard.getValueAt(row, col);
+		if (cellValue instanceof Ship && cellValue.hitsReceived === 0) {
+			this.shipFound = true;
+			this.currentShip.pos = [row, col];
+			this.currentShip.ship = cellValue;
+		}
+
+		this.enemyGameboard.receiveHit(row, col);
+
+		if (this.currentShip.ship && this.currentShip.ship.isSunk()) {
+			this.shipFound = false;
+			this.currentShip = { ship: null, pos: null };
+		}
+		setTimeout(() => {
+			gameController.playTurn({ row, col });
+		}, 1000);
+	}
+}
+
 export const gameController = (function () {
 	let currentPlayer;
 	let player1;
