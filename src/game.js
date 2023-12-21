@@ -178,7 +178,7 @@ export const gameController = (function () {
 		gameBoard1 = new GameBoard(10);
 		gameBoard2 = new GameBoard(10);
 		player1 = new Player("player 1", gameBoard2);
-		player2 = new Player("player 2", gameBoard1);
+		player2 = new AiPlayer("player 2", gameBoard1);
 
 		currentPlayer = player1;
 
@@ -218,21 +218,27 @@ export const gameController = (function () {
 	function isGameOver() {
 		return !gameBoard1.isShipLeft() || !gameBoard2.isShipLeft();
 	}
-	function checkGameOver() {}
 
 	function playTurn({ row, col }) {
-		currentPlayer.attack(row, col);
+		if (!(currentPlayer instanceof AiPlayer)) {
+			currentPlayer.attack(row, col);
+		}
+
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
 		// checkGameOver();
 
 		pubsub.publish("turnPlayed", {
-			board: currentPlayer === player1 ? 1 : 0,
 			board: currentPlayer === player1 ? 0 : 1,
 			row,
 			col,
 		});
 		if (isGameOver()) {
 			pubsub.publish("gameEnded", null);
+		} else {
+			if (currentPlayer instanceof AiPlayer) {
+				currentPlayer.attack();
+			}
+		}
 	}
 
 	pubsub.subscribe("cellSelected", playTurn);
