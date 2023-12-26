@@ -1,5 +1,16 @@
 import { pubsub } from "./pubsub.js";
 
+const HORIZONTAL_MOVES = [
+	[0, 1],
+	[0, -1],
+];
+const VERTICAL_MOVES = [
+	[1, 0],
+	[-1, 0],
+];
+const Moves = [HORIZONTAL_MOVES, VERTICAL_MOVES];
+const Directions = ["horizontal", "vertical"];
+
 export class Ship {
 	constructor(length) {
 		this.length = length;
@@ -126,9 +137,6 @@ export class GameBoard {
 }
 
 export class Player {
-	//if it's computer-controlled, select a random cell every turn.
-	//unless the previous move was a hit and that ship is still not sunk,
-	//in that case, select an adjacent cell
 	constructor(name, enemyGameboard) {
 		this.name = name;
 		this.enemyGameboard = enemyGameboard;
@@ -136,36 +144,85 @@ export class Player {
 
 	attack(row, col) {
 		this.enemyGameboard.receiveHit(row, col);
+		return this.enemyGameboard.getValueAt(row, col);
 	}
 }
 
 class AiPlayer extends Player {
 	constructor(name, enemyGameboard) {
 		super(name, enemyGameboard);
-		this.shipFound = false; //when the ship being attacked is sunk, this should reset to false
-		this.currentShip = { ship: null, pos: null };
+		this.shipFound = false;
+		this.currentShip = { ship: null, pos: null, direction: null };
+
+		pubsub.subscribe("AiPlayerAttacked", () => {
+			if (this.currentShip.ship && this.currentShip.ship.isSunk()) {
+				this.shipFound = false;
+				this.currentShip = { ship: null, pos: null };
+			}
+		});
 	}
 
+	attack(row, col) {
+		const originalValue = super.attack(row, col);
+		pubsub.publish("AiPlayerAttacked", null);
+		return originalValue;
 	}
 
-	attack() {
+	playTurn() {
+		const { row, col } = this.getNextMove();
+
+		const cellValue = this.enemyGameboard.getValueAt(row, col);
+		if (cellValue instanceof Ship && cellValue.hitsReceived === 0) {
+			this.shipFound = true;
+			this.currentShip.pos = [row, col];
+			this.currentShip.ship = cellValue;
+		}
+		if (this.shipFound && cellValue instanceof Ship) {
+			const currentPos = this.currentShip.pos;
+			for (let i = 0; i < Moves.length; i++) {
+				for (let j = 0; j < Moves[i].length; j++) {
+					if (
+						currentPos[0] + Moves[i][j][0] === row &&
+						currentPos[1] + Moves[i][j][1] === col
+					) {
+						this.currentShip.direction = Directions[i];
+						break;
+					}
+				}
+			}
+		}
+
+		setTimeout(() => {
+			gameController.playTurn({ row, col });
+		}, 1000);
+	}
+
+	getNextMove() {
 		const getPossibleMoves = (pos) => {
-			const moves = [
-				//[1, 0],
-				//[-1, 0],
-				[0, 1],
-				[0, -1],
-			];
+			let moves = Moves.flat();
+			if (this.currentShip.direction === "horizontal") {
+				moves = HORIZONTAL_MOVES;
+			} else if (this.currentShip.direction === "vertical") {
+				moves = VERTICAL_MOVES;
+			}
 			const possibleMoves = [];
 			for (const move of moves) {
 				let row = pos[0];
 				let col = pos[1];
-				while (this.enemyGameboard.board[row][col] === true) {
+				while (
+					row >= 0 &&
+					row < 10 &&
+					col >= 0 &&
+					col < 10 &&
+					this.enemyGameboard.board[row][col] === true
+				) {
 					row += move[0];
 					col += move[1];
 				}
 				if (
+					row >= 0 &&
 					row < 10 &&
+					col >= 0 &&
 					col < 10 &&
 					typeof this.enemyGameboard.board[row][col] !== "boolean" //null or ship id
 				) {
@@ -191,22 +248,7 @@ class AiPlayer extends Player {
 			}
 		}
 
-		const cellValue = this.enemyGameboard.getValueAt(row, col);
-		if (cellValue instanceof Ship && cellValue.hitsReceived === 0) {
-			this.shipFound = true;
-			this.currentShip.pos = [row, col];
-			this.currentShip.ship = cellValue;
-		}
-
-		this.enemyGameboard.receiveHit(row, col);
-
-		if (this.currentShip.ship && this.currentShip.ship.isSunk()) {
-			this.shipFound = false;
-			this.currentShip = { ship: null, pos: null };
-		}
-		setTimeout(() => {
-			gameController.playTurn({ row, col });
-		}, 1000);
+		return { row, col };
 	}
 }
 
