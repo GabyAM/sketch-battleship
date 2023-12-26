@@ -131,16 +131,16 @@ export const domController = (function () {
 	function renderShips(board, ships) {
 		ships.forEach((ship) => {
 			const domShip = document.createElement("div");
-			domShip.className = "ship";
+			domShip.className = `ship length-${ship.length} ${
+				ship.isSunk ? "sunk" : ""
+			}`;
 			domShip.dataset.length = ship.length;
 
-			domShip.style.width = `calc(var(--cell-size) * ${ship.length})`;
-			domShip.style.height = `var(--cell-size)`;
 
 			board.appendChild(domShip);
-			domShip.style.gridRowStart = `${ship.start[0] + 1}`;
-			domShip.style.gridColumn = `${ship.start[1] + 1} /${
-				ship.start[1] + 1 + ship.length
+			domShip.style.gridRow = `${ship.start[0] + 1} / ${ship.end[0] + 2}`;
+			domShip.style.gridColumn = `${ship.start[1] + 1} / ${
+				ship.end[1] + 2
 			}`;
 		});
 	}

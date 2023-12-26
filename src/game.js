@@ -30,26 +30,67 @@ export class GameBoard {
 		this.ships = {};
 	}
 
-	placeShip(row, col, length, id) {
-		if (row > this.board.length || col > this.board.length) {
-			throw new Error("");
+	// placeShip(row, col, length, id, isRotated) {
+	// 	//another option: sending all ship cells and id.
+	// 	if (row > this.board.length || col > this.board.length) {
+	// 		throw new Error("");
+	// 	}
+	// 	if (typeof this.board[row][col] !== "boolean") {
+	// 		if (col + length <= this.board.length) {
+	// 			//validation so it doesn't overlap the second time
+	// 			if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
+	// 				const newShip = new Ship(length);
+	// 				this.ships[`${id}`] = { ship: newShip, cells: [] };
+	// 			} else {
+	// 				const shipCells = this.ships[`${id}`].cells;
+	// 				shipCells.forEach((coords) => {
+	// 					this.board[coords[0]][coords[1]] = null;
+	// 				});
+	// 				this.ships[`${id}`].cells = [];
+	// 			}
+
+	// 			for (let i = 0; i < length; i++) {
+	// 				this.board[row][col + i] = id;
+	// 				this.ships[`${id}`].cells.push([row, col + i]);
+	// 			}
+	// 		}
+	// 	}
+	// 	console.log(this.ships);
+	// 	console.log(this.board);
+	// }
+
+	placeShip(cells, id) {
+		//checks that is not out of bounds and that doesn't collide with any ship
+		const isOutOfBounds =
+			cells[cells.length - 1][0] > 9 || cells[cells.length - 1][1] > 9;
+		if (
+			isOutOfBounds ||
+			cells.some(
+				(pos) =>
+					this.board[pos[0]][pos[1]] !== id &&
+					this.board[pos[0]][pos[1]] !== null
+			)
+		) {
+			return false; //throw new Error("");
 		}
-		if (this.board[row][col] === null) {
-			if (col + length <= this.board.length) {
-				const newShip = new Ship(length);
-				if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
-					this.ships[`${id}`] = { ship: newShip, start: [row, col] };
-				} else {
-					const shipCells = this.ships[`${id}`].cells;
-					shipCells.forEach((coords) => {
-						this.board[coords[0]][coords[1]] = null;
-					});
-				}
-				for (let i = 0; i < length; i++) {
-					this.board[row][col + i] = id;
-				}
-			}
+
+		if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
+			const newShip = new Ship(cells.length);
+			this.ships[`${id}`] = { ship: newShip, cells };
+		} else {
+			const shipCells = this.ships[`${id}`].cells;
+			shipCells.forEach((coords) => {
+				this.board[coords[0]][coords[1]] = null;
+			});
+			this.ships[`${id}`].cells = cells;
 		}
+
+		cells.forEach((pos) => {
+			this.board[pos[0]][pos[1]] = id;
+		});
+
+	}
+
 	getValueAt(row, col) {
 		if (this.board[row][col]) {
 			return this.ships[this.board[row][col]].ship;
@@ -103,6 +144,8 @@ class AiPlayer extends Player {
 		super(name, enemyGameboard);
 		this.shipFound = false; //when the ship being attacked is sunk, this should reset to false
 		this.currentShip = { ship: null, pos: null };
+	}
+
 	}
 
 	attack() {
@@ -192,10 +235,12 @@ export const gameController = (function () {
 	}
 
 	function mapShips(ships) {
-		return Object.values(ships).map((shipData) => {
+		return Object.values(ships).map((ship) => {
 			return {
-				length: shipData.ship.length,
-				start: shipData.start,
+				length: ship.ship.length,
+				start: ship.cells[0],
+				end: ship.cells[ship.cells.length - 1],
+				isSunk: ship.ship.isSunk(),
 			};
 		});
 	}
@@ -207,8 +252,7 @@ export const gameController = (function () {
 		]);
 	}
 
-	function handlePlaceShip({ row, col, length, id }) {
-		gameBoard1.placeShip(Number(row), Number(col), length, id);
+	function handlePlaceShip({ cells, id }) {
 	}
 
 	function getCurrentPlayer() {
