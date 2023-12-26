@@ -264,9 +264,7 @@ export const gameController = (function () {
 	}
 
 	function playTurn({ row, col }) {
-		if (!(currentPlayer instanceof AiPlayer)) {
-			currentPlayer.attack(row, col);
-		}
+		const isHit = currentPlayer.attack(row, col);
 
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
 		// checkGameOver();
@@ -275,13 +273,12 @@ export const gameController = (function () {
 			board: currentPlayer === player1 ? 0 : 1,
 			row,
 			col,
+			isHit,
 		});
 		if (isGameOver()) {
 			pubsub.publish("gameEnded", null);
-		} else {
-			if (currentPlayer instanceof AiPlayer) {
-				currentPlayer.attack();
-			}
+		} else if (currentPlayer instanceof AiPlayer) {
+			currentPlayer.playTurn();
 		}
 	}
 
