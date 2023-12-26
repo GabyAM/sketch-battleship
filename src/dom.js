@@ -1,10 +1,5 @@
 import { pubsub } from "./pubsub.js";
-
-let count = 0;
-function getId() {
-	count++;
-	return count;
-}
+import { getId } from "./utilities.js";
 
 export function getGridCoords(grid, event) {
 	function getCoords(e) {
