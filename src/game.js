@@ -134,6 +134,42 @@ export class GameBoard {
 		}
 		return shipLeft;
 	}
+
+	placeShipsRandom() {
+		const moves = [
+			[1, 0],
+			[0, 1],
+		]; //later in the program, this should be the same const as in the AiPlayer class
+
+		const placeShipRandom = (length) => {
+			let placed = false;
+			while (placed === false) {
+				//selects random starting pos
+				let row = Math.floor(Math.random() * 9);
+				let col = Math.floor(Math.random() * 9);
+				//chooses random direction
+				const randomMove =
+					moves[Math.floor(Math.random() * moves.length)];
+				const cellsArray = [[row, col]];
+				//calculates the ships cells
+				for (let i = 0; i < length - 1; i++) {
+					row += randomMove[0];
+					col += randomMove[1];
+					cellsArray.push([row, col]); //only sums once...
+				}
+				//checks if the ship was placed
+				if (this.placeShip(cellsArray, getId()) !== false) {
+					placed = true;
+				}
+			}
+		};
+
+		placeShipRandom(5);
+		placeShipRandom(4);
+		placeShipRandom(3);
+		placeShipRandom(3);
+		placeShipRandom(2);
+	}
 }
 
 export class Player {
@@ -262,13 +298,11 @@ export const gameController = (function () {
 	function init() {
 		gameBoard1 = new GameBoard(10);
 		gameBoard2 = new GameBoard(10);
+		gameBoard2.placeShipsRandom();
 		player1 = new Player("player 1", gameBoard2);
 		player2 = new AiPlayer("player 2", gameBoard1);
 
 		currentPlayer = player1;
-
-		gameBoard2.placeShip(2, 2, 3, 1);
-		gameBoard2.placeShip(3, 3, 4, 2);
 
 		pubsub.publish("boardsUpdated", [
 			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
