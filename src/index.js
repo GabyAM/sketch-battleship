@@ -1,10 +1,6 @@
 import { domController } from "./dom.js";
 import { gameController } from "./game.js";
-import {
-	addBoardEvent,
-	swapBoardEvent,
-	removeBoardEvents,
-} from "./eventListeners.js";
+import { swapBoardEvent, removeBoardEvents } from "./eventListeners.js";
 import { pubsub } from "./pubsub.js";
 
 pubsub.subscribe("turnPlayed", swapBoardEvent);

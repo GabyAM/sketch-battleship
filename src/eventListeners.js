@@ -28,8 +28,13 @@ const startGameButton = document.querySelector("#start");
 startGameButton.addEventListener(
 	"click",
 	() => {
-		swapBoardEvent(1);
 		pubsub.publish("startButtonPressed", null);
+		document
+			.querySelectorAll(".ships.grid")
+			.forEach((grid) => (grid.style.zIndex = "1"));
+		document
+			.querySelectorAll(".attacks")[1]
+			.addEventListener("click", handleBoardClick);
 	},
 	{ once: true }
 );
