@@ -23,40 +23,62 @@ export function getGridCoords(grid, event) {
 
 class DomShip {
 	constructor(length) {
-		this.element = this.createElement(length);
-		this.addDraggable(this.element);
 		this.length = length;
 		this.isRotated = false;
+		this.element = this.createElement(length);
+		this.addEvents(this.element);
 		this.id = getId();
+	}
+
+	adjustSize(ship) {
+		if (this.isRotated) {
+			ship.style.width = "40px";
+			ship.style.height = `${40 * this.length}px`;
+		} else {
+			ship.style.width = `${40 * this.length}px`;
+			ship.style.height = "40px";
+		}
 	}
 
 	createElement(length) {
 		const ship = document.createElement("div");
 		ship.className = "ship";
-		ship.style.width = `${40 * length}px`;
-		ship.style.height = "40px";
+		this.adjustSize(ship);
+		ship.style.position = "absolute";
 		return ship;
 	}
 
-	addDraggable(ship) {
+	addEvents(ship) {
 		const shipsGrid = document.querySelector(".grid.ships");
 
 		let isDown = false;
+		let isDragging = false;
 		let offsetX, offsetY;
-		ship.addEventListener("mousedown", (e) => {
+		let prevRow, prevCol;
+		const prevTop = ship.style.top;
+		const prevLeft = ship.style.left;
+		ship.addEventListener("pointerdown", (e) => {
+			e.preventDefault();
 			isDown = true;
-			ship.style.position = "absolute";
-			ship.style.left = `${e.clientX - 10}px`;
-			ship.style.top = `${e.clientY - 10}px`;
+			isDragging = false;
 			const rect = ship.getBoundingClientRect();
 			offsetX = e.clientX - rect.left;
 			offsetY = e.clientY - rect.top;
+			if (ship.parentElement === shipsGrid) {
+				({ row: prevRow, col: prevCol } = getGridCoords(shipsGrid, e));
+			}
 		});
-		window.addEventListener("mouseup", (e) => {
-			if (isDown) {
-				isDown = false;
+
+		window.addEventListener("pointerup", (e) => {
+			if (isDown && isDragging) {
 				const { row, col } = getGridCoords(shipsGrid, e);
-				if (row <= 10 && col + this.length <= 10) {
+				this.row = row;
+				this.col = col;
+				const IsOutOfBounds = this.isRotated
+					? row + this.length > 10 || col > 10
+					: row > 10 || col + this.length > 10;
+
+				if (!IsOutOfBounds) {
 					if (ship.parentElement !== shipsGrid) {
 						shipsGrid.appendChild(ship);
 					}
@@ -72,16 +94,70 @@ class DomShip {
 							length: this.length,
 							id: this.id,
 						});
+					pubsub.publish("shipPlaced", {
+						cells: this.getCells(),
+						id: this.id,
+					});
+				} else {
+					if (ship.parentElement === shipsGrid) {
+						ship.style.position = "static";
+						ship.style.gridRowStart = `${prevRow + 1}`;
+						ship.style.gridColumn = `${prevCol + 1}} / ${
+							prevCol + 1 + this.length
+						}`;
+					} else {
+						ship.style.top = prevTop;
+						ship.style.left = prevLeft;
+					}
 				}
 			}
+			isDown = false;
 		});
 
-		window.addEventListener("mousemove", (e) => {
+		window.addEventListener("pointermove", (e) => {
 			if (isDown) {
+				isDragging = true;
+				if (ship.style.position === "static") {
+					ship.style.position = "absolute";
+				}
 				ship.style.left = `${e.clientX - offsetX}px`;
 				ship.style.top = `${e.clientY - offsetY}px`;
-
 			}
+		});
+		ship.addEventListener("click", (e) => {
+			if (!isDragging) {
+				if (this.isRotated) {
+					this.isRotated = false;
+					this.adjustSize(ship);
+				} else {
+					this.isRotated = true;
+					this.adjustSize(ship);
+				}
+				pubsub.publish("shipPlaced", {
+					cells: this.getCells(),
+					id: this.id,
+				});
+			}
+			isDown = false;
+			isDragging = false;
+		});
+	}
+
+	getCells() {
+		if (this.col === null || this.row === null) {
+			throw new Error("The ship must be placed first!");
+		}
+
+		const shipCells = [];
+		for (let i = 0; i < this.length; i++) {
+			const pos = this.isRotated
+				? [this.row + i, this.col]
+				: [this.row, this.col + i];
+			shipCells.push(pos);
+		}
+		return shipCells;
+	}
+
 		});
 	}
 }
