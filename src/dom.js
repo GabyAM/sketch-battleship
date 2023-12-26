@@ -217,15 +217,8 @@ export const domController = (function () {
 	}
 
 	function createAttackElement() {
-		function addAttackIcon(element) {
-			const icon = document.createElement("span");
-			icon.className = "material-symbols-outlined";
-			icon.textContent = "close";
-			element.appendChild(icon);
-		}
 		const element = document.createElement("div");
 		element.className = "attack";
-		addAttackIcon(element);
 		return element;
 	}
 
@@ -258,8 +251,13 @@ export const domController = (function () {
 	}
 
 	function styleCell({ board: boardNumber, row, col, isHit }) {
-		const board = document.querySelectorAll(".board")[boardNumber];
-		const cell = getCellByCoordinates(board, row, col);
-		isHit ? cell.classList.add("hit") : cell.classList.add("miss");
+		const board = document.querySelectorAll(".attacks.grid")[boardNumber];
+		const element = createAttackElement();
+		board.appendChild(element);
+		element.style.gridRowStart = `${row + 1}`;
+		element.style.gridColumnStart = `${col + 1}`;
+		if (isHit) {
+			element.style.border = "2px solid black";
+		}
 	}
 })();
