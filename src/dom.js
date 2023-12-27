@@ -289,6 +289,7 @@ export const domController = (function () {
 			attacksBoard.dataset.player = index + 1;
 			renderAttacks(attacksBoard, data.board);
 		});
+		pubsub.publish("boardsRendered");
 	}
 
 	function styleCell({ board: boardNumber, row, col, isHit }) {

@@ -11,7 +11,7 @@ export const pubsub = (function () {
 			events[eventName] = events[eventName].filter((f) => f !== func);
 		}
 	}
-	function publish(eventName, value) {
+	function publish(eventName, value = null) {
 		if (events[eventName]) {
 			events[eventName].forEach((func) => func(value));
 		}

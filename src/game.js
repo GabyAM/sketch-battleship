@@ -201,7 +201,7 @@ class AiPlayer extends Player {
 
 	attack(row, col) {
 		const originalValue = super.attack(row, col);
-		pubsub.publish("AiPlayerAttacked", null);
+		pubsub.publish("AiPlayerAttacked");
 		return originalValue;
 	}
 
@@ -367,7 +367,7 @@ export const gameController = (function () {
 			isHit,
 		});
 		if (isGameOver()) {
-			pubsub.publish("gameEnded", null);
+			pubsub.publish("gameEnded");
 		} else if (currentPlayer instanceof AiPlayer) {
 			currentPlayer.playTurn();
 		}
