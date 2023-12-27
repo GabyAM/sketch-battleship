@@ -330,6 +330,8 @@ export const gameController = (function () {
 	}
 
 	function handlePlaceShip({ cells, id }) {
+		const result = gameBoard1.placeShip(cells, id);
+		pubsub.publish(`shipPlacedResult_${id}`, result);
 	}
 
 	function getCurrentPlayer() {

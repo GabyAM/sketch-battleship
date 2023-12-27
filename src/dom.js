@@ -35,6 +35,18 @@ class DomShip {
 		}
 	}
 
+	adjustPosition(ship, row = this.row, col = this.col) {
+		if (this.isRotated) {
+			ship.style.gridArea = `${row + 1} / ${col + 1} / ${
+				row + 1 + this.length
+			} / ${col + 1}`;
+		} else {
+			ship.style.gridArea = `${row + 1} / ${col + 1} / ${row + 1} / ${
+				col + 1 + this.length
+			}`;
+		}
+	}
+
 	createElement(length) {
 		const ship = document.createElement("div");
 		ship.className = "ship";
@@ -48,19 +60,39 @@ class DomShip {
 
 		let isDown = false;
 		let isDragging = false;
+		let clickEnabled = false;
+		let startX, startY;
 		let offsetX, offsetY;
 		let prevRow, prevCol;
 		const prevTop = ship.style.top;
 		const prevLeft = ship.style.left;
 		ship.addEventListener("pointerdown", (e) => {
-			e.preventDefault();
 			isDown = true;
-			isDragging = false;
+			clickEnabled = true;
 			const rect = ship.getBoundingClientRect();
-			offsetX = e.clientX - rect.left;
-			offsetY = e.clientY - rect.top;
+			startX = e.clientX;
+			startY = e.clientY;
+			offsetX = startX - rect.left;
+			offsetY = startY - rect.top;
 			if (ship.parentElement === shipsGrid) {
 				({ row: prevRow, col: prevCol } = getGridCoords(shipsGrid, e));
+			}
+		});
+
+		window.addEventListener("pointermove", (e) => {
+			e.preventDefault();
+			if (isDown) {
+				const distanceX = Math.abs(e.clientX - startX);
+				const distanceY = Math.abs(e.clientY - startY);
+				if (distanceX > 5 || distanceY > 5) {
+					isDragging = true;
+					clickEnabled = false;
+				}
+				if (ship.style.position === "static") {
+					ship.style.position = "absolute";
+				}
+				ship.style.left = `${e.clientX - offsetX}px`;
+				ship.style.top = `${e.clientY - offsetY}px`;
 			}
 		});
 
@@ -74,68 +106,80 @@ class DomShip {
 					: row > 10 || col + this.length > 10;
 
 				if (!IsOutOfBounds) {
-					if (ship.parentElement !== shipsGrid) {
-						shipsGrid.appendChild(ship);
-					}
-					ship.style.gridRowStart = `${row + 1}`;
-					ship.style.gridColumn = `${col + 1} / ${
-						col + 1 + this.length
-					}`;
+					const shipPlacedResultCallback = (result) => {
+						console.log(this.id);
+						if (result) {
+							if (ship.parentElement !== shipsGrid) {
+								shipsGrid.appendChild(ship);
+							}
+							this.adjustPosition(ship, row, col);
+							ship.style.position = "static";
+						} else {
+							if (ship.parentElement === shipsGrid) {
+								ship.style.position = "static";
+								this.adjustPosition(ship, prevRow, prevCol);
+							} else {
+								ship.style.top = prevTop;
+								ship.style.left = prevLeft;
+							}
+						}
+						pubsub.unsubscribe(
+							`shipPlacedResult_${this.id}`,
+							shipPlacedResultCallback
+						);
+					};
 
-					ship.style.position = "static";
-						pubsub.publish("shipPlaced", {
-							row,
-							col,
-							length: this.length,
-							id: this.id,
-						});
+					pubsub.subscribe(
+						`shipPlacedResult_${this.id}`,
+						shipPlacedResultCallback
+					);
+
 					pubsub.publish("shipPlaced", {
 						cells: this.getCells(),
 						id: this.id,
 					});
-				} else {
-					if (ship.parentElement === shipsGrid) {
-						ship.style.position = "static";
-						ship.style.gridRowStart = `${prevRow + 1}`;
-						ship.style.gridColumn = `${prevCol + 1}} / ${
-							prevCol + 1 + this.length
-						}`;
-					} else {
-						ship.style.top = prevTop;
-						ship.style.left = prevLeft;
-					}
 				}
 			}
+			setTimeout(() => {
+				clickEnabled = true;
+			}, 200);
 			isDown = false;
+			isDragging = false;
 		});
 
-		window.addEventListener("pointermove", (e) => {
-			if (isDown) {
-				isDragging = true;
-				if (ship.style.position === "static") {
-					ship.style.position = "absolute";
-				}
-				ship.style.left = `${e.clientX - offsetX}px`;
-				ship.style.top = `${e.clientY - offsetY}px`;
-			}
-		});
 		ship.addEventListener("click", (e) => {
-			if (!isDragging) {
-				if (this.isRotated) {
-					this.isRotated = false;
-					this.adjustSize(ship);
-				} else {
-					this.isRotated = true;
-					this.adjustSize(ship);
-				}
+			if (!isDragging && clickEnabled) {
+				clickEnabled = false;
+				const shipRotatedResultCallback = (result) => {
+					if (result === false) {
+						this.rotate(ship);
+					}
+
+					pubsub.unsubscribe(
+						`shipPlacedResult_${this.id}`,
+						shipRotatedResultCallback
+					);
+				};
+				this.rotate(ship);
+				pubsub.subscribe(
+					`shipPlacedResult_${this.id}`,
+					shipRotatedResultCallback
+				);
 				pubsub.publish("shipPlaced", {
 					cells: this.getCells(),
 					id: this.id,
 				});
 			}
-			isDown = false;
-			isDragging = false;
 		});
+	}
+
+	rotate(ship) {
+		this.isRotated = !this.isRotated;
+		if (this.isRotated) {
+		} else {
+		}
+		this.adjustSize(ship);
+		this.adjustPosition(ship);
 	}
 
 	getCells() {
@@ -151,9 +195,6 @@ class DomShip {
 			shipCells.push(pos);
 		}
 		return shipCells;
-	}
-
-		});
 	}
 }
 
