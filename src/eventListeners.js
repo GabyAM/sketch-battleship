@@ -2,11 +2,13 @@ import { getGridCoords } from "./dom.js";
 import { pubsub } from "./pubsub.js";
 
 function handleBoardClick(event) {
-	const { row, col } = getGridCoords(event.target, event);
-	pubsub.publish("cellSelected", {
-		row,
-		col,
-	});
+	if (event.target.classList.contains("attacks")) {
+		const { row, col } = getGridCoords(event.target, event);
+		pubsub.publish("cellSelected", {
+			row,
+			col,
+		});
+	}
 }
 
 export function swapBoardEvent({ board: boardIndex }) {

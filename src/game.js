@@ -343,6 +343,8 @@ export const gameController = (function () {
 	}
 
 	function playTurn({ row, col }) {
+		const selectedCell = currentPlayer.enemyGameboard.board[row][col];
+		if (typeof selectedCell === "boolean") return;
 		const isHit = currentPlayer.attack(row, col);
 
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
