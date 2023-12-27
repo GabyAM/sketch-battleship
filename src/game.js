@@ -323,10 +323,20 @@ export const gameController = (function () {
 	}
 
 	function startGame() {
-		pubsub.publish("boardsUpdated", [
-			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
-			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
-		]);
+		if (
+			Object.keys(gameBoard1.ships).length === 5 &&
+			Object.keys(gameBoard2.ships).length === 5
+		) {
+			function gameStartedCallback() {
+				pubsub.publish("gameStarted");
+			}
+			//sends board data and when they're rendered, starts the game
+			pubsub.subscribe("boardsRendered", gameStartedCallback);
+			pubsub.publish("boardsUpdated", [
+				{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
+				{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
+			]);
+		}
 	}
 
 	function handlePlaceShip({ cells, id }) {

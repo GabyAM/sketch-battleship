@@ -27,16 +27,22 @@ export function removeBoardEvents() {
 }
 
 const startGameButton = document.querySelector("#start");
-startGameButton.addEventListener(
-	"click",
-	() => {
-		pubsub.publish("startButtonPressed", null);
+
+function startButtonPressedCallback() {
+	function gameStartCallback() {
 		document
 			.querySelectorAll(".ships.grid")
 			.forEach((grid) => (grid.style.zIndex = "1"));
 		document
 			.querySelectorAll(".attacks")[1]
 			.addEventListener("click", handleBoardClick);
-	},
-	{ once: true }
-);
+		pubsub.unsubscribe("gameStarted", gameStartCallback);
+		startGameButton.removeEventListener(
+			"click",
+			startButtonPressedCallback
+		);
+	}
+	pubsub.subscribe("gameStarted", gameStartCallback);
+	pubsub.publish("startButtonPressed");
+}
+startGameButton.addEventListener("click", startButtonPressedCallback);
