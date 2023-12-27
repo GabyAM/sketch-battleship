@@ -142,12 +142,21 @@ export class GameBoard {
 			[0, 1],
 		]; //later in the program, this should be the same const as in the AiPlayer class
 
+		const emptyCells = [];
+		for (let i = 0; i < this.board.length; i++) {
+			for (let j = 0; j < this.board.length; j++) {
+				emptyCells.push([i, j]);
+			}
+		}
+
 		const placeShipRandom = (length) => {
 			let placed = false;
 			while (placed === false) {
 				//selects random starting pos
-				let row = Math.floor(Math.random() * 9);
-				let col = Math.floor(Math.random() * 9);
+				const randomPos =
+					emptyCells[Math.floor(Math.random() * emptyCells.length)];
+				let row = randomPos[0];
+				let col = randomPos[1];
 				//chooses random direction
 				const randomMove =
 					moves[Math.floor(Math.random() * moves.length)];
@@ -161,6 +170,10 @@ export class GameBoard {
 				//checks if the ship was placed
 				if (this.placeShip(cellsArray, getId()) !== false) {
 					placed = true;
+					cellsArray.forEach((coords) => {
+						const index = emptyCells.indexOf(coords);
+						emptyCells.splice(index, 1);
+					});
 				}
 			}
 		};
