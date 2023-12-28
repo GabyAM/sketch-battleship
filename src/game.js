@@ -1,4 +1,4 @@
-import { getId } from "./utilities.js";
+import { getId, getKeyFromValue } from "./utilities.js";
 import { pubsub } from "./pubsub.js";
 
 const HORIZONTAL_MOVES = [
@@ -327,6 +327,7 @@ export const gameController = (function () {
 	function mapShips(ships) {
 		return Object.values(ships).map((ship) => {
 			return {
+				id: getKeyFromValue(ships, ship.ship),
 				length: ship.ship.length,
 				start: ship.cells[0],
 				end: ship.cells[ship.cells.length - 1],
@@ -366,24 +367,38 @@ export const gameController = (function () {
 	}
 
 	function playTurn({ row, col }) {
-		const selectedCell = currentPlayer.enemyGameboard.board[row][col];
+		const selectedCell = currentPlayer.enemyGameboard.getValueAt(row, col);
 		if (typeof selectedCell === "boolean") return;
 		const isHit = currentPlayer.attack(row, col);
+		let shipId;
+
+		if (selectedCell instanceof Ship && selectedCell.isSunk()) {
+			const shipsObject = currentPlayer.enemyGameboard.ships;
+			shipId = getKeyFromValue(shipsObject, selectedCell);
+		}
 
 		currentPlayer = currentPlayer === player1 ? player2 : player1;
-		// checkGameOver();
 
-		pubsub.publish("turnPlayed", {
-			board: currentPlayer === player1 ? 0 : 1,
+		function turnDisplayedCallback() {
+			pubsub.unsubscribe("turnDisplayed", turnDisplayedCallback);
+			if (isGameOver()) {
+				pubsub.publish("gameEnded");
+			} else {
+				pubsub.publish("turnPlayed", {
+					boardNumber: currentPlayer === player1 ? 0 : 1,
+				});
+			}
+		}
+		pubsub.subscribe("turnDisplayed", turnDisplayedCallback);
+		pubsub.publish("attackPerformed", {
+			boardNumber: currentPlayer === player1 ? 0 : 1,
 			row,
 			col,
 			isHit,
+			id: shipId,
 		});
-		if (isGameOver()) {
-			pubsub.publish("gameEnded");
-		} else if (currentPlayer instanceof AiPlayer) {
-			currentPlayer.playTurn();
-		}
+
+		if (currentPlayer instanceof AiPlayer) currentPlayer.playTurn();
 	}
 
 	pubsub.subscribe("cellSelected", playTurn);

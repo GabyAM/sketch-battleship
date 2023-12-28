@@ -247,7 +247,7 @@ export const domController = (function () {
 				ship.isSunk ? "sunk" : ""
 			}`;
 			domShip.dataset.length = ship.length;
-
+			domShip.dataset.id = ship.id;
 
 			board.appendChild(domShip);
 			domShip.style.gridRow = `${ship.start[0] + 1} / ${ship.end[0] + 2}`;
@@ -292,14 +292,30 @@ export const domController = (function () {
 		pubsub.publish("boardsRendered");
 	}
 
-	function styleCell({ board: boardNumber, row, col, isHit }) {
+	function styleAttackedCell(boardNumber, row, col, isHit) {
 		const board = document.querySelectorAll(".attacks.grid")[boardNumber];
 		const element = createAttackElement();
 		board.appendChild(element);
 		element.style.gridRowStart = `${row + 1}`;
 		element.style.gridColumnStart = `${col + 1}`;
 		if (isHit) {
-			element.style.border = "2px solid black";
+			const smokeImage = document.createElement("div");
+			smokeImage.classList.add("smoke");
+			element.appendChild(smokeImage);
 		}
+	}
+
+	function styleSunkShip(boardNumber, id /*cells*/) {
+		const shipsGrid = document.querySelectorAll(".ships.grid")[boardNumber];
+		const ship = shipsGrid.querySelector(`.ship[data-id="${id}"]`);
+		ship.classList.add("sunk");
+	}
+
+	function displayTurn({ boardNumber, row, col, isHit, id }) {
+		styleAttackedCell(boardNumber, row, col, isHit);
+		if (isHit && id !== undefined) {
+			styleSunkShip(boardNumber, id);
+		}
+		pubsub.publish("turnDisplayed");
 	}
 })();
