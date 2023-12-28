@@ -49,7 +49,14 @@ class DomShip {
 
 	createElement(length) {
 		const ship = document.createElement("div");
+		const shipImage = document.createElement("div");
 		ship.className = "ship";
+		shipImage.className = `ship-image length-${length}`;
+
+		shipImage.style.width = `${this.length * 40}px`;
+		shipImage.style.height = `40px`;
+
+		ship.appendChild(shipImage);
 		this.adjustSize(ship);
 		ship.style.position = "absolute";
 		return ship;
@@ -176,7 +183,9 @@ class DomShip {
 	rotate(ship) {
 		this.isRotated = !this.isRotated;
 		if (this.isRotated) {
+			ship.querySelector(".ship-image").classList.add("rotated");
 		} else {
+			ship.querySelector(".ship-image").classList.remove("rotated");
 		}
 		this.adjustSize(ship);
 		this.adjustPosition(ship);
@@ -246,6 +255,13 @@ export const domController = (function () {
 			domShip.className = `ship length-${ship.length} ${
 				ship.isSunk ? "sunk" : ""
 			}`;
+			const shipImage = document.createElement("div");
+			shipImage.style.width = `${ship.length * 40}px`;
+			shipImage.style.height = "40px";
+			shipImage.className = `ship-image length-${ship.length} ${
+				ship.end[0] > ship.start[0] ? "rotated" : ""
+			}`;
+			domShip.appendChild(shipImage);
 			domShip.dataset.length = ship.length;
 			domShip.dataset.id = ship.id;
 
