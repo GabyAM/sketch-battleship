@@ -10,6 +10,8 @@ body {
 	display: flex;
 	flex-direction: row;
 	gap: 100px;
+	background: url(./assets/paper_background.jpg);
+	background-size: cover;
 }
 
 .cell {
