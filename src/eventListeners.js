@@ -31,6 +31,8 @@ const startGameButton = document.querySelector("#start");
 
 function startButtonPressedCallback() {
 	function gameStartCallback() {
+		sortShipsButton.removeEventListener("click", sortButtonPressedCallback);
+
 		document
 			.querySelectorAll(".ships.grid")
 			.forEach((grid) => (grid.style.zIndex = "1"));
@@ -47,3 +49,11 @@ function startButtonPressedCallback() {
 	pubsub.publish("startButtonPressed");
 }
 startGameButton.addEventListener("click", startButtonPressedCallback);
+
+const sortShipsButton = document.querySelector(".sort-ships");
+
+function sortButtonPressedCallback() {
+	pubsub.publish("sortButtonPressed");
+}
+
+sortShipsButton.addEventListener("click", sortButtonPressedCallback);

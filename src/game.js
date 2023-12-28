@@ -35,6 +35,10 @@ export class Ship {
 */
 export class GameBoard {
 	constructor(size) {
+		this.initializeBoard(size);
+	}
+
+	initializeBoard(size) {
 		this.board = Array(size);
 		for (let i = 0; i < size; i++) {
 			this.board[i] = Array(size).fill(null);
@@ -137,6 +141,8 @@ export class GameBoard {
 	}
 
 	placeShipsRandom() {
+		this.initializeBoard(10);
+
 		const moves = [
 			[1, 0],
 			[0, 1],
@@ -343,6 +349,7 @@ export const gameController = (function () {
 		) {
 			function gameStartedCallback() {
 				pubsub.publish("gameStarted");
+				pubsub.unsubscribe("boardsRendered", gameStartedCallback);
 			}
 			//sends board data and when they're rendered, starts the game
 			pubsub.subscribe("boardsRendered", gameStartedCallback);
@@ -356,6 +363,15 @@ export const gameController = (function () {
 	function handlePlaceShip({ cells, id }) {
 		const result = gameBoard1.placeShip(cells, id);
 		pubsub.publish(`shipPlacedResult_${id}`, result);
+	}
+
+	function handleSortShips() {
+		gameBoard1.placeShipsRandom();
+
+		pubsub.publish("boardsUpdated", [
+			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
+			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
+		]);
 	}
 
 	function getCurrentPlayer() {
@@ -403,6 +419,7 @@ export const gameController = (function () {
 
 	pubsub.subscribe("cellSelected", playTurn);
 	pubsub.subscribe("shipPlaced", handlePlaceShip);
+	pubsub.subscribe("sortButtonPressed", handleSortShips);
 	pubsub.subscribe("startButtonPressed", startGame);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();
