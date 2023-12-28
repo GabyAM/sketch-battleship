@@ -2,20 +2,57 @@
 	--cell-size: 40px;
 }
 
-body {
+* {
 	box-sizing: border-box;
+}
+
+body {
 	display: flex;
 	flex-direction: row;
-	gap: 30px;
+	gap: 100px;
 }
 
 .cell {
 	width: var(--cell-size);
 	height: var(--cell-size);
 	border: 1px solid black;
+	opacity: 0.3;
 }
-.board {
+
+.grid {
 	display: grid;
 	grid-template-rows: repeat(10, var(--cell-size));
 	grid-template-columns: repeat(10, var(--cell-size));
 }
+.player-area {
+	display: flex;
+	flex-direction: row;
+	gap: 100px;
+}
+
+.boards {
+	display: grid;
+	animation: changeBoardBackground 0.5s infinite;
+	background-size: cover;
+}
+
+.boards > div {
+	grid-row-start: 1;
+	grid-column-start: 1;
+}
+
+.ships-area {
+	width: 200px;
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+}
+
+.ships {
+	z-index: 3;
+}
+
+.attacks {
+	z-index: 2;
+}
+
