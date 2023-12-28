@@ -58,3 +58,11 @@ body {
 	z-index: 2;
 }
 
+.attack {
+	align-self: center;
+	justify-self: center;
+	width: 40px;
+	height: 40px;
+	animation: changeAttackBackground 1s infinite;
+	background-size: cover;
+}
