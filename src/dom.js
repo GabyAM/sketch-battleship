@@ -22,28 +22,30 @@ class DomShip {
 		this.isRotated = false;
 		this.element = this.createElement(length);
 		this.addEvents(this.element);
+		this.adjustSize();
 		this.id = getId();
 	}
 
-	adjustSize(ship) {
+	//not really necessary
+	adjustSize() {
 		if (this.isRotated) {
-			ship.style.width = "40px";
-			ship.style.height = `${40 * this.length}px`;
+			this.element.style.width = "40px";
+			this.element.style.height = `${40 * this.length}px`;
 		} else {
-			ship.style.width = `${40 * this.length}px`;
-			ship.style.height = "40px";
+			this.element.style.width = `${40 * this.length}px`;
+			this.element.style.height = "40px";
 		}
 	}
 
-	adjustPosition(ship, row = this.row, col = this.col) {
+	adjustPosition(row = this.row, col = this.col) {
 		if (this.isRotated) {
-			ship.style.gridArea = `${row + 1} / ${col + 1} / ${
+			this.element.style.gridArea = `${row + 1} / ${col + 1} / ${
 				row + 1 + this.length
 			} / ${col + 1}`;
 		} else {
-			ship.style.gridArea = `${row + 1} / ${col + 1} / ${row + 1} / ${
-				col + 1 + this.length
-			}`;
+			this.element.style.gridArea = `${row + 1} / ${col + 1} / ${
+				row + 1
+			} / ${col + 1 + this.length}`;
 		}
 	}
 
@@ -57,7 +59,7 @@ class DomShip {
 		shipImage.style.height = `40px`;
 
 		ship.appendChild(shipImage);
-		this.adjustSize(ship);
+
 		ship.style.position = "absolute";
 		return ship;
 	}
@@ -204,6 +206,19 @@ class DomShip {
 			shipCells.push(pos);
 		}
 		return shipCells;
+	}
+
+	rotate() {
+		this.isRotated = !this.isRotated;
+		if (this.isRotated) {
+			this.element.querySelector(".ship-image").classList.add("rotated");
+		} else {
+			this.element
+				.querySelector(".ship-image")
+				.classList.remove("rotated");
+		}
+		this.adjustSize();
+		this.adjustPosition();
 	}
 }
 
