@@ -94,3 +94,15 @@ body {
 	animation: changeAttackBackground 1s infinite;
 	background-size: cover;
 }
+@keyframes changeBoardBackground {
+	0%,
+	100% {
+		background-image: url("./assets/water1b.png");
+	}
+	33% {
+		background-image: url("./assets/water2b.png");
+	}
+	66% {
+		background-image: url("./assets/water3b.png");
+	}
+}
