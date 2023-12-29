@@ -19,10 +19,10 @@ export function getGridCoords(grid, event) {
 class DomShip {
 	constructor(length) {
 		this.length = length;
+		this.id = getId();
 		this.isRotated = false;
 		this.element = this.createElement(length);
 		this.adjustSize();
-		this.id = getId();
 	}
 
 	//not really necessary
@@ -48,16 +48,8 @@ class DomShip {
 		}
 	}
 
-	createElement(length) {
-		const ship = document.createElement("div");
-		const shipImage = document.createElement("div");
-		ship.className = "ship";
-		shipImage.className = `ship-image length-${length}`;
-
-		shipImage.style.width = `${this.length * 40}px`;
-		shipImage.style.height = `40px`;
-
-		ship.appendChild(shipImage);
+	createElement() {
+		const ship = domController.createShipElement(this.length, this.id);
 
 		ship.style.position = "absolute";
 		return ship;
@@ -147,21 +139,32 @@ export const domController = (function () {
 		return grid;
 	}
 
+	function createShipElement(length, id) {
+		const ship = document.createElement("div");
+		const shipImage = document.createElement("div");
+		ship.appendChild(shipImage);
+
+		ship.className = `ship`;
+		shipImage.className = `ship-image length-${length}`;
+		shipImage.style.width = `${length * 40}px`;
+		shipImage.style.height = "40px";
+
+		ship.dataset.length = length;
+		ship.dataset.id = id;
+
+		return ship;
+	}
+
 	function renderShips(board, ships) {
 		ships.forEach((ship) => {
-			const domShip = document.createElement("div");
-			domShip.className = `ship length-${ship.length} ${
-				ship.isSunk ? "sunk" : ""
-			}`;
-			const shipImage = document.createElement("div");
-			shipImage.style.width = `${ship.length * 40}px`;
-			shipImage.style.height = "40px";
-			shipImage.className = `ship-image length-${ship.length} ${
-				ship.end[0] > ship.start[0] ? "rotated" : ""
-			}`;
-			domShip.appendChild(shipImage);
-			domShip.dataset.length = ship.length;
-			domShip.dataset.id = ship.id;
+			const domShip = createShipElement(ship.length, ship.id);
+			if (ship.isSunk) {
+				domShip.classList.add("sunk");
+			}
+			if (ship.end[0] > ship.start[0]) {
+				const shipImage = domShip.querySelector(".ship-image");
+				shipImage.classList.add("rotated");
+			}
 
 			board.appendChild(domShip);
 			domShip.style.gridRow = `${ship.start[0] + 1} / ${ship.end[0] + 2}`;
@@ -232,4 +235,5 @@ export const domController = (function () {
 		}
 		pubsub.publish("turnDisplayed");
 	}
+	return { createShipElement };
 })();
