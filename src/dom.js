@@ -21,7 +21,6 @@ class DomShip {
 		this.length = length;
 		this.isRotated = false;
 		this.element = this.createElement(length);
-		this.addEvents(this.element);
 		this.adjustSize();
 		this.id = getId();
 	}
@@ -64,135 +63,6 @@ class DomShip {
 		return ship;
 	}
 
-	addEvents(ship) {
-		const shipsGrid = document.querySelector(".grid.ships");
-
-		let isDown = false;
-		let isDragging = false;
-		let clickEnabled = false;
-		let startX, startY;
-		let offsetX, offsetY;
-		let prevRow, prevCol;
-		const prevTop = ship.style.top;
-		const prevLeft = ship.style.left;
-		ship.addEventListener("pointerdown", (e) => {
-			isDown = true;
-			clickEnabled = true;
-			const rect = ship.getBoundingClientRect();
-			startX = e.clientX;
-			startY = e.clientY;
-			offsetX = startX - rect.left;
-			offsetY = startY - rect.top;
-			if (ship.parentElement === shipsGrid) {
-				({ row: prevRow, col: prevCol } = getGridCoords(shipsGrid, e));
-			}
-		});
-
-		window.addEventListener("pointermove", (e) => {
-			e.preventDefault();
-			if (isDown) {
-				const distanceX = Math.abs(e.clientX - startX);
-				const distanceY = Math.abs(e.clientY - startY);
-				if (distanceX > 5 || distanceY > 5) {
-					isDragging = true;
-					clickEnabled = false;
-				}
-				if (ship.style.position === "static") {
-					ship.style.position = "absolute";
-				}
-				ship.style.left = `${e.clientX - offsetX}px`;
-				ship.style.top = `${e.clientY - offsetY}px`;
-			}
-		});
-
-		window.addEventListener("pointerup", (e) => {
-			if (isDown && isDragging) {
-				const { row, col } = getGridCoords(shipsGrid, e);
-				this.row = row;
-				this.col = col;
-				const IsOutOfBounds = this.isRotated
-					? row + this.length > 10 || col > 10
-					: row > 10 || col + this.length > 10;
-
-				if (!IsOutOfBounds) {
-					const shipPlacedResultCallback = (result) => {
-						console.log(this.id);
-						if (result) {
-							if (ship.parentElement !== shipsGrid) {
-								shipsGrid.appendChild(ship);
-							}
-							this.adjustPosition(ship, row, col);
-							ship.style.position = "static";
-						} else {
-							if (ship.parentElement === shipsGrid) {
-								ship.style.position = "static";
-								this.adjustPosition(ship, prevRow, prevCol);
-							} else {
-								ship.style.top = prevTop;
-								ship.style.left = prevLeft;
-							}
-						}
-						pubsub.unsubscribe(
-							`shipPlacedResult_${this.id}`,
-							shipPlacedResultCallback
-						);
-					};
-
-					pubsub.subscribe(
-						`shipPlacedResult_${this.id}`,
-						shipPlacedResultCallback
-					);
-
-					pubsub.publish("shipPlaced", {
-						cells: this.getCells(),
-						id: this.id,
-					});
-				}
-			}
-			setTimeout(() => {
-				clickEnabled = true;
-			}, 200);
-			isDown = false;
-			isDragging = false;
-		});
-
-		ship.addEventListener("click", (e) => {
-			if (!isDragging && clickEnabled) {
-				clickEnabled = false;
-				const shipRotatedResultCallback = (result) => {
-					if (result === false) {
-						this.rotate(ship);
-					}
-
-					pubsub.unsubscribe(
-						`shipPlacedResult_${this.id}`,
-						shipRotatedResultCallback
-					);
-				};
-				this.rotate(ship);
-				pubsub.subscribe(
-					`shipPlacedResult_${this.id}`,
-					shipRotatedResultCallback
-				);
-				pubsub.publish("shipPlaced", {
-					cells: this.getCells(),
-					id: this.id,
-				});
-			}
-		});
-	}
-
-	rotate(ship) {
-		this.isRotated = !this.isRotated;
-		if (this.isRotated) {
-			ship.querySelector(".ship-image").classList.add("rotated");
-		} else {
-			ship.querySelector(".ship-image").classList.remove("rotated");
-		}
-		this.adjustSize(ship);
-		this.adjustPosition(ship);
-	}
-
 	getCells() {
 		if (this.col === null || this.row === null) {
 			throw new Error("The ship must be placed first!");
@@ -228,12 +98,25 @@ export const domController = (function () {
 
 	setTimeout(() => {
 		const shipsArea = document.querySelector(".ships-area");
-		shipsArea.appendChild(new DomShip(5).element);
-		shipsArea.appendChild(new DomShip(4).element);
-		shipsArea.appendChild(new DomShip(3).element);
-		shipsArea.appendChild(new DomShip(3).element);
-		shipsArea.appendChild(new DomShip(2).element);
-	}, 0);
+		const firstShip = new DomShip(5);
+		pubsub.publish("shipCreated", firstShip);
+		const secondShip = new DomShip(4);
+		pubsub.publish("shipCreated", secondShip);
+		const thirdShip = new DomShip(3);
+		pubsub.publish("shipCreated", thirdShip);
+		const fourthShip = new DomShip(3);
+		pubsub.publish("shipCreated", fourthShip);
+		const fifthShip = new DomShip(2);
+		pubsub.publish("shipCreated", fifthShip);
+		shipsArea.appendChild(firstShip.element);
+		shipsArea.appendChild(secondShip.element);
+		shipsArea.appendChild(thirdShip.element);
+		shipsArea.appendChild(fourthShip.element);
+		shipsArea.appendChild(fifthShip.element);
+		shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
+			ship.style.top = `${index * 50}px`;
+		});
+	}, 0); //do something about this setTimeout!
 
 	function createDomBoard(length, index) {
 		function createCell() {
