@@ -17,22 +17,23 @@ export function getGridCoords(grid, event) {
 }
 
 class DomShip {
-	constructor(length) {
+	constructor(length, isRotated = false, id = getId()) {
 		this.length = length;
-		this.id = getId();
-		this.isRotated = false;
+		this.id = id;
+		this.isRotated = isRotated;
 		this.element = this.createElement(length);
+
 		this.adjustSize();
 	}
 
 	//not really necessary
 	adjustSize() {
 		if (this.isRotated) {
-			this.element.style.width = "40px";
-			this.element.style.height = `${40 * this.length}px`;
+			this.element.style.width = "30px";
+			this.element.style.height = `${30 * this.length}px`;
 		} else {
-			this.element.style.width = `${40 * this.length}px`;
-			this.element.style.height = "40px";
+			this.element.style.width = `${30 * this.length}px`;
+			this.element.style.height = "30px";
 		}
 	}
 
@@ -49,7 +50,17 @@ class DomShip {
 	}
 
 	createElement() {
-		const ship = domController.createShipElement(this.length, this.id);
+		const ship = document.createElement("div");
+		const shipImage = document.createElement("div");
+		ship.appendChild(shipImage);
+
+		ship.className = `ship`;
+		shipImage.className = `ship-image length-${this.length}`;
+		shipImage.style.width = `${this.length * 30}px`;
+		shipImage.style.height = "30px";
+
+		ship.dataset.length = this.length;
+		ship.dataset.id = this.id;
 
 		ship.style.position = "absolute";
 		return ship;
@@ -139,38 +150,32 @@ export const domController = (function () {
 		return grid;
 	}
 
-	function createShipElement(length, id) {
-		const ship = document.createElement("div");
-		const shipImage = document.createElement("div");
-		ship.appendChild(shipImage);
-
-		ship.className = `ship`;
-		shipImage.className = `ship-image length-${length}`;
-		shipImage.style.width = `${length * 40}px`;
-		shipImage.style.height = "40px";
-
-		ship.dataset.length = length;
-		ship.dataset.id = id;
-
-		return ship;
-	}
-
 	function renderShips(board, ships) {
 		ships.forEach((ship) => {
-			const domShip = createShipElement(ship.length, ship.id);
+			const isShipRotated = ship.end[0] > ship.start[0];
+			const shipInstance = new DomShip(
+				ship.length,
+				isShipRotated,
+				Number(ship.id)
+			);
+			shipInstance.row = ship.start[0];
+			shipInstance.col = ship.start[1];
+			pubsub.publish("shipCreated", shipInstance);
+
+			const domShip = shipInstance.element;
+			domShip.style.position = "static";
 			if (ship.isSunk) {
 				domShip.classList.add("sunk");
 			}
-			if (ship.end[0] > ship.start[0]) {
+			if (isShipRotated) {
 				const shipImage = domShip.querySelector(".ship-image");
 				shipImage.classList.add("rotated");
 			}
 
 			board.appendChild(domShip);
-			domShip.style.gridRow = `${ship.start[0] + 1} / ${ship.end[0] + 2}`;
-			domShip.style.gridColumn = `${ship.start[1] + 1} / ${
-				ship.end[1] + 2
-			}`;
+			domShip.style.gridArea = `${ship.start[0] + 1} / ${
+				ship.start[1] + 1
+			} / ${ship.end[0] + 2} / ${ship.end[1] + 2}`;
 		});
 	}
 
@@ -235,5 +240,4 @@ export const domController = (function () {
 		}
 		pubsub.publish("turnDisplayed");
 	}
-	return { createShipElement };
 })();
