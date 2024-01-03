@@ -86,29 +86,29 @@ class DomShip {
 
 export const domController = (function () {
 	pubsub.subscribe("boardsUpdated", renderBoards);
-	pubsub.subscribe("turnPlayed", styleCell);
+	pubsub.subscribe("attackPerformed", displayTurn);
 
-	setTimeout(() => {
-		const shipsArea = document.querySelector(".ships-area");
-		const firstShip = new DomShip(5);
-		pubsub.publish("shipCreated", firstShip);
-		const secondShip = new DomShip(4);
-		pubsub.publish("shipCreated", secondShip);
-		const thirdShip = new DomShip(3);
-		pubsub.publish("shipCreated", thirdShip);
-		const fourthShip = new DomShip(3);
-		pubsub.publish("shipCreated", fourthShip);
-		const fifthShip = new DomShip(2);
-		pubsub.publish("shipCreated", fifthShip);
-		shipsArea.appendChild(firstShip.element);
-		shipsArea.appendChild(secondShip.element);
-		shipsArea.appendChild(thirdShip.element);
-		shipsArea.appendChild(fourthShip.element);
-		shipsArea.appendChild(fifthShip.element);
-		shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
-			ship.style.top = `${index * 50}px`;
-		});
-	}, 0); //do something about this setTimeout!
+	// setTimeout(() => {
+	// 	const shipsArea = document.querySelector(".ships-area");
+	// 	const firstShip = new DomShip(5);
+	// 	pubsub.publish("shipCreated", firstShip);
+	// 	const secondShip = new DomShip(4);
+	// 	pubsub.publish("shipCreated", secondShip);
+	// 	const thirdShip = new DomShip(3);
+	// 	pubsub.publish("shipCreated", thirdShip);
+	// 	const fourthShip = new DomShip(3);
+	// 	pubsub.publish("shipCreated", fourthShip);
+	// 	const fifthShip = new DomShip(2);
+	// 	pubsub.publish("shipCreated", fifthShip);
+	// 	shipsArea.appendChild(firstShip.element);
+	// 	shipsArea.appendChild(secondShip.element);
+	// 	shipsArea.appendChild(thirdShip.element);
+	// 	shipsArea.appendChild(fourthShip.element);
+	// 	shipsArea.appendChild(fifthShip.element);
+	// 	shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
+	// 		ship.style.top = `${index * 50}px`;
+	// 	});
+	// }, 0);
 
 	function createDomBoard(length, index) {
 		function createCell() {

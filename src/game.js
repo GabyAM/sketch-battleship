@@ -318,7 +318,9 @@ export const gameController = (function () {
 	function init() {
 		gameBoard1 = new GameBoard(10);
 		gameBoard2 = new GameBoard(10);
+		gameBoard1.placeShipsRandom();
 		gameBoard2.placeShipsRandom();
+
 		player1 = new Player("player 1", gameBoard2);
 		player2 = new AiPlayer("player 2", gameBoard1);
 
