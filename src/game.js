@@ -34,14 +34,14 @@ export class Ship {
 
 */
 export class GameBoard {
-	constructor(size) {
-		this.initializeBoard(size);
+	constructor() {
+		this.initializeBoard();
 	}
 
-	initializeBoard(size) {
-		this.board = Array(size);
-		for (let i = 0; i < size; i++) {
-			this.board[i] = Array(size).fill(null);
+	initializeBoard() {
+		this.board = Array(10);
+		for (let i = 0; i < 10; i++) {
+			this.board[i] = Array(10).fill(null);
 		}
 		this.ships = {};
 	}
@@ -141,7 +141,7 @@ export class GameBoard {
 	}
 
 	placeShipsRandom() {
-		this.initializeBoard(10);
+		this.initializeBoard();
 
 		const moves = [
 			[1, 0],
@@ -370,6 +370,11 @@ export const gameController = (function () {
 	function handleSortShips() {
 		gameBoard1.placeShipsRandom();
 
+	function handleClearBoard(player) {
+		console.log(player);
+		player === 1
+			? gameBoard1.initializeBoard()
+			: gameBoard2.initializeBoard();
 		updateBoards();
 	}
 
@@ -417,6 +422,7 @@ export const gameController = (function () {
 	pubsub.subscribe("cellSelected", playTurn);
 	pubsub.subscribe("shipPlaced", handlePlaceShip);
 	pubsub.subscribe("sortButtonPressed", handleSortShips);
+	pubsub.subscribe("clearButtonPressed", handleClearBoard);
 	pubsub.subscribe("startButtonPressed", startGame);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();

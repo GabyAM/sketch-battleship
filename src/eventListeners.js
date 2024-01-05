@@ -174,3 +174,8 @@ export function addShipEvents(shipInstance) {
 		}
 	});
 }
+function clearButtonPressedCallback(e) {
+	pubsub.publish("clearButtonPressed", getPlayerNumber(e));
+}
+const clearBoardButton = document.querySelector(".clear-board");
+clearBoardButton.addEventListener("click", clearButtonPressedCallback);
