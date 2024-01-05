@@ -362,13 +362,22 @@ export const gameController = (function () {
 		}
 	}
 
-	function handlePlaceShip({ cells, id }) {
-		const result = gameBoard1.placeShip(cells, id);
+	function handlePlaceShip({ cells, id, player }) {
+		const result =
+			player === 1
+				? gameBoard1.placeShip(cells, id)
+				: gameBoard2.placeShip(cells, id);
 		pubsub.publish(`shipPlacedResult_${id}`, result);
 	}
 
-	function handleSortShips() {
-		gameBoard1.placeShipsRandom();
+	function handleSortShips(player) {
+		console.log(player);
+		player === 1
+			? gameBoard1.placeShipsRandom()
+			: gameBoard2.placeShipsRandom();
+
+		updateBoards();
+	}
 
 	function handleClearBoard(player) {
 		console.log(player);

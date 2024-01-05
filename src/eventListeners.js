@@ -29,8 +29,7 @@ const startGameButton = document.querySelector("#start");
 
 function startButtonPressedCallback() {
 	function gameStartCallback() {
-		sortShipsButton.removeEventListener("click", sortButtonPressedCallback);
-
+		disableActionButtons();
 		document
 			.querySelectorAll(".ships.grid")
 			.forEach((grid) => (grid.style.zIndex = "1"));
@@ -47,14 +46,12 @@ function startButtonPressedCallback() {
 	pubsub.publish("startButtonPressed");
 }
 startGameButton.addEventListener("click", startButtonPressedCallback);
-
-const sortShipsButton = document.querySelector(".sort-ships");
-
-function sortButtonPressedCallback() {
-	pubsub.publish("sortButtonPressed");
-}
-
-sortShipsButton.addEventListener("click", sortButtonPressedCallback);
+startGameButton.addEventListener("pointerover", () => {
+	startGameButton.classList.add("hovering");
+});
+startGameButton.addEventListener("pointerleave", () => {
+	startGameButton.classList.remove("hovering");
+});
 
 //receives instance so it can use it's functions
 export function addShipEvents(shipInstance) {
@@ -174,8 +171,40 @@ export function addShipEvents(shipInstance) {
 		}
 	});
 }
+
+function getPlayerNumber(e) {
+	const playerDiv = e.target.closest(".player-area");
+	return Number(playerDiv.className.slice(19));
+}
+
+function sortButtonPressedCallback(e) {
+	pubsub.publish("sortButtonPressed", getPlayerNumber(e));
+}
+
 function clearButtonPressedCallback(e) {
 	pubsub.publish("clearButtonPressed", getPlayerNumber(e));
 }
+
+const sortShipsButton = document.querySelector(".sort-ships");
 const clearBoardButton = document.querySelector(".clear-board");
+const actionButtons = document.querySelectorAll(".board-buttons-area button");
+
+sortShipsButton.addEventListener("click", sortButtonPressedCallback);
+
 clearBoardButton.addEventListener("click", clearButtonPressedCallback);
+
+actionButtons.forEach((button) => {
+	button.addEventListener("pointerover", () => {
+		button.parentElement.classList.add("hovering");
+	});
+	button.addEventListener("pointerleave", () => {
+		button.parentElement.classList.remove("hovering");
+	});
+});
+
+function disableActionButtons() {
+	actionButtons.forEach((button) => {
+		button.disabled = true;
+		button.parentElement.classList.add("disabled");
+	});
+}
