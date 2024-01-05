@@ -315,6 +315,13 @@ export const gameController = (function () {
 	let player2;
 	let gameBoard2;
 
+	function updateBoards() {
+		pubsub.publish("boardsUpdated", [
+			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
+			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
+		]);
+	}
+
 	function init() {
 		gameBoard1 = new GameBoard(10);
 		gameBoard2 = new GameBoard(10);
@@ -325,11 +332,7 @@ export const gameController = (function () {
 		player2 = new AiPlayer("player 2", gameBoard1);
 
 		currentPlayer = player1;
-
-		pubsub.publish("boardsUpdated", [
-			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
-			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
-		]);
+		updateBoards();
 	}
 
 	function mapShips(ships) {
@@ -355,10 +358,7 @@ export const gameController = (function () {
 			}
 			//sends board data and when they're rendered, starts the game
 			pubsub.subscribe("boardsRendered", gameStartedCallback);
-			pubsub.publish("boardsUpdated", [
-				{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
-				{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
-			]);
+			updateBoards();
 		}
 	}
 
@@ -370,10 +370,7 @@ export const gameController = (function () {
 	function handleSortShips() {
 		gameBoard1.placeShipsRandom();
 
-		pubsub.publish("boardsUpdated", [
-			{ board: gameBoard1.board, ships: mapShips(gameBoard1.ships) },
-			{ board: gameBoard2.board, ships: mapShips(gameBoard2.ships) },
-		]);
+		updateBoards();
 	}
 
 	function getCurrentPlayer() {
@@ -402,9 +399,7 @@ export const gameController = (function () {
 			if (isGameOver()) {
 				pubsub.publish("gameEnded");
 			} else {
-				pubsub.publish("turnPlayed", {
-					boardNumber: currentPlayer === player1 ? 0 : 1,
-				});
+				pubsub.publish("turnPlayed", currentPlayer === player1 ? 1 : 2);
 			}
 		}
 		pubsub.subscribe("turnDisplayed", turnDisplayedCallback);
