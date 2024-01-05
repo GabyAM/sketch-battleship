@@ -11,19 +11,18 @@ function handleBoardClick(event) {
 	}
 }
 
-export function swapBoardEvent({ boardNumber }) {
-	const board = document.querySelectorAll(".attacks")[boardNumber];
-	const otherBoard =
-		document.querySelectorAll(".attacks")[boardNumber === 0 ? 1 : 0];
-	board.removeEventListener("click", handleBoardClick);
-	otherBoard.addEventListener("click", handleBoardClick);
+export function handleBoardEvent(playerNumber) {
+	const board = document.querySelector(".player-area:last-of-type .attacks");
+	if (playerNumber === 1) {
+		board.addEventListener("click", handleBoardClick);
+	} else {
+		board.removeEventListener("click", handleBoardClick);
+	}
 }
 
 export function removeBoardEvents() {
-	const boards = document.querySelectorAll(".attacks");
-	boards.forEach((board) =>
-		board.removeEventListener("click", handleBoardClick)
-	);
+	const board = document.querySelector(".player-area:last-of-type .attacks");
+	board.removeEventListener("click", handleBoardClick);
 }
 
 const startGameButton = document.querySelector("#start");
