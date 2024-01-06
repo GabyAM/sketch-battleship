@@ -98,6 +98,8 @@ class DomShip {
 export const domController = (function () {
 	pubsub.subscribe("boardsUpdated", renderBoards);
 	pubsub.subscribe("attackPerformed", displayTurn);
+	pubsub.subscribe("clearButtonPressed", showShipsMenu);
+	pubsub.subscribe("sortButtonPressed", hideShipsMenu);
 
 	// setTimeout(() => {
 	// 	const shipsArea = document.querySelector(".ships-area");
@@ -239,5 +241,59 @@ export const domController = (function () {
 			styleSunkShip(boardNumber, id);
 		}
 		pubsub.publish("turnDisplayed");
+	}
+
+	function showShipsMenu() {
+		const shipsArea = document.querySelector(".ships-area");
+		shipsArea.style.left = "0";
+
+		const firstShip = new DomShip(5);
+		pubsub.publish("shipCreated", firstShip);
+		const secondShip = new DomShip(4);
+		pubsub.publish("shipCreated", secondShip);
+		const thirdShip = new DomShip(3);
+		pubsub.publish("shipCreated", thirdShip);
+		const fourthShip = new DomShip(3);
+		pubsub.publish("shipCreated", fourthShip);
+		const fifthShip = new DomShip(2);
+		pubsub.publish("shipCreated", fifthShip);
+		shipsArea.appendChild(firstShip.element);
+		shipsArea.appendChild(secondShip.element);
+		shipsArea.appendChild(thirdShip.element);
+		shipsArea.appendChild(fourthShip.element);
+		shipsArea.appendChild(fifthShip.element);
+		shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
+			ship.style.top = `${(index + 2) * 50}px`;
+			ship.style.left = "20px";
+		});
+		pubsub.publish("shipsMenuOpened");
+		setShipsAreaObserver();
+	}
+
+	function hideShipsMenu() {
+		const shipsArea = document.querySelector(".ships-area");
+		if (shipsArea.style.left === "0px") {
+			shipsArea.innerHTML = "";
+			shipsArea.style.left = "-20%";
+			pubsub.publish("shipsMenuClosed");
+		}
+	}
+
+	function setShipsAreaObserver() {
+		const callback = (mutations, observer) => {
+			mutations.forEach((mutation) => {
+				if (
+					mutation.type === "childList" &&
+					mutation.target.childNodes.length === 0
+				) {
+					hideShipsMenu();
+					observer.disconnect();
+				}
+			});
+		};
+		const observer = new MutationObserver(callback);
+		observer.observe(document.querySelector(".ships-area"), {
+			childList: true,
+		});
 	}
 })();
