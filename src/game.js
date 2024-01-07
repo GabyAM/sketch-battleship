@@ -46,35 +46,6 @@ export class GameBoard {
 		this.ships = {};
 	}
 
-	// placeShip(row, col, length, id, isRotated) {
-	// 	//another option: sending all ship cells and id.
-	// 	if (row > this.board.length || col > this.board.length) {
-	// 		throw new Error("");
-	// 	}
-	// 	if (typeof this.board[row][col] !== "boolean") {
-	// 		if (col + length <= this.board.length) {
-	// 			//validation so it doesn't overlap the second time
-	// 			if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
-	// 				const newShip = new Ship(length);
-	// 				this.ships[`${id}`] = { ship: newShip, cells: [] };
-	// 			} else {
-	// 				const shipCells = this.ships[`${id}`].cells;
-	// 				shipCells.forEach((coords) => {
-	// 					this.board[coords[0]][coords[1]] = null;
-	// 				});
-	// 				this.ships[`${id}`].cells = [];
-	// 			}
-
-	// 			for (let i = 0; i < length; i++) {
-	// 				this.board[row][col + i] = id;
-	// 				this.ships[`${id}`].cells.push([row, col + i]);
-	// 			}
-	// 		}
-	// 	}
-	// 	console.log(this.ships);
-	// 	console.log(this.board);
-	// }
-
 	placeShip(cells, id) {
 		//checks that is not out of bounds and that doesn't collide with any ship
 		const isOutOfBounds =
@@ -83,11 +54,12 @@ export class GameBoard {
 			isOutOfBounds ||
 			cells.some(
 				(pos) =>
-					this.board[pos[0]][pos[1]] !== id &&
-					this.board[pos[0]][pos[1]] !== null
-			)
+					(this.isShip(pos[0], pos[1]) &&
+						this.board[pos[0]][pos[1]].id !== id) ||
+					typeof this.getValueAt(pos[0], pos[1]) === "boolean"
+			) //there can be a ship with the same id (means that it's moving) or null
 		) {
-			return false; //throw new Error("");
+			return false;
 		}
 
 		if (!Object.prototype.hasOwnProperty.call(this.ships, id)) {
@@ -102,14 +74,31 @@ export class GameBoard {
 		}
 
 		cells.forEach((pos) => {
-			this.board[pos[0]][pos[1]] = id;
+			this.board[pos[0]][pos[1]] = { isHit: false, id };
 		});
 
+		return true;
+	}
+
+	isShip(row, col) {
+		return (
+			this.board[row][col] !== null &&
+			typeof this.board[row][col] === "object"
+		);
+	}
+
+	getShipAt(row, col) {
+		if (this.isShip(row, col)) {
+			return this.ships[this.board[row][col].id].ship;
+		}
 	}
 
 	getValueAt(row, col) {
-		if (this.board[row][col]) {
-			return this.ships[this.board[row][col]].ship;
+		if (this.isShip(row, col)) {
+			if (this.board[row][col].isHit === true) {
+				return true;
+			}
+			return this.getShipAt(row, col);
 		} else {
 			return this.board[row][col];
 		}
@@ -119,12 +108,14 @@ export class GameBoard {
 		if (row > this.board.length || col > this.board.length) {
 			throw new Error("");
 		}
-		if (this.board[row][col] && typeof this.board[row][col] !== "boolean") {
+		if (this.isShip(row, col)) {
 			this.getValueAt(row, col).hit();
-			this.board[row][col] = true;
+			this.board[row][col].isHit = true;
+			return true;
 		} else {
 			this.board[row][col] = false;
 		}
+		return this.board[row][col];
 	}
 
 	isShipLeft() {
