@@ -296,4 +296,23 @@ export const domController = (function () {
 			childList: true,
 		});
 	}
+
+	function renderGameEndScreen(winner) {
+		document.querySelector(".game").style.padding = "0";
+
+		let winnerBoard;
+		let loserBoard;
+		if (winner === "1") {
+			winnerBoard = document.querySelector(".player-area.player-1");
+			loserBoard = document.querySelector(".player-area.player-2");
+		} else {
+			winnerBoard = document.querySelector(".player-area.player-2");
+			loserBoard = document.querySelector(".player-area.player-1");
+		}
+
+		winnerBoard.innerHTML = "";
+		loserBoard.innerHTML = "";
+		winnerBoard.classList.add("winner");
+		loserBoard.classList.add("loser");
+	}
 })();

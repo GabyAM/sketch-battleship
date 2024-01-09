@@ -440,6 +440,12 @@ export const gameController = (function () {
 		return !gameBoard1.isShipLeft() || !gameBoard2.isShipLeft();
 	}
 
+	function getWinner() {
+		if (isGameOver()) {
+			return !gameBoard1.isShipLeft() ? "2" : "1";
+		}
+	}
+
 	function playTurn({ row, col }) {
 		const selectedCell = currentPlayer.enemyGameboard.getValueAt(row, col);
 		if (typeof selectedCell === "boolean") return;
@@ -456,9 +462,10 @@ export const gameController = (function () {
 		function turnDisplayedCallback() {
 			pubsub.unsubscribe("turnDisplayed", turnDisplayedCallback);
 			if (isGameOver()) {
-				pubsub.publish("gameEnded");
+				pubsub.publish("gameEnded", getWinner());
 			} else {
 				pubsub.publish("turnPlayed", currentPlayer === player1 ? 1 : 2);
+				if (currentPlayer instanceof AiPlayer) currentPlayer.playTurn();
 			}
 		}
 		pubsub.subscribe("turnDisplayed", turnDisplayedCallback);
@@ -469,8 +476,6 @@ export const gameController = (function () {
 			isHit,
 			id: shipId,
 		});
-
-		if (currentPlayer instanceof AiPlayer) currentPlayer.playTurn();
 	}
 
 	pubsub.subscribe("cellSelected", playTurn);

@@ -58,6 +58,9 @@ body {
 	display: flex;
 	flex-direction: row;
 	gap: 100px;
+	background-size: 85%;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .boards {
@@ -93,6 +96,12 @@ body {
 	height: 40px;
 	animation: changeAttackBackground 1s infinite;
 	background-size: cover;
+}
+.player-area.winner {
+	background-image: url("./assets/victory.png");
+}
+.player-area.loser {
+	background-image: url("./assets/defeat.png");
 }
 @keyframes changeBoardBackground {
 	0%,
