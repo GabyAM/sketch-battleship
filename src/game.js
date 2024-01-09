@@ -81,7 +81,7 @@ export class GameBoard {
 	}
 
 	wasAttacked(row, col) {
-		return typeof this.getValueAt(row, col) === "object";
+		return typeof this.getValueAt(row, col) !== "object"; //means that is true or false, an attack
 	}
 
 	isShip(row, col) {
