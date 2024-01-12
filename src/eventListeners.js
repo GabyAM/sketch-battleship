@@ -1,6 +1,9 @@
 import { getGridCoords } from "./dom.js";
 import { pubsub } from "./pubsub.js";
 
+pubsub.subscribe("turnPlayed", handleBoardEvent);
+pubsub.subscribe("gameEnded", removeBoardEvents);
+pubsub.subscribe("shipCreated", addShipEvents);
 function handleBoardClick(event) {
 	if (event.target.classList.contains("attacks")) {
 		const { row, col } = getGridCoords(event.target, event);
