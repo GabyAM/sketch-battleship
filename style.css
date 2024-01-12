@@ -152,9 +152,21 @@ body {
 .disabled {
 	filter: brightness(75%);
 }
+
+.ships-area {
+	width: 18%;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	gap: 50px;
+	position: absolute;
+	top: 0;
+	left: -20%;
+	background-image: url("./assets/ships-container-background.png");
+	background-size: contain;
+	background-position: center left;
+	background-repeat: no-repeat;
+	transition: left 0.5s;
 }
 
 .ships {
