@@ -1,9 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Dokdo&display=swap");
+
 :root {
 	--cell-size: 25px;
 	--board-size: calc(var(--cell-size) * 10);
 }
 
 * {
+	font-family: "Dokdo";
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
@@ -125,12 +128,16 @@ body {
 	display: flex;
 	justify-content: space-around;
 }
+
+button {
+	color: white;
+	border: none;
+	outline: none;
+}
 .board-buttons-area button {
 	width: 80px;
 	height: 35px;
 	background: none;
-	border: none;
-	outline: none;
 	font-size: 1.4rem;
 }
 
@@ -151,6 +158,7 @@ body {
 
 #start.hovering {
 	transform: scale(1.1) rotate(-5deg);
+}
 
 .board-buttons-area :first-child {
 	background-image: url("./assets/button_background.png");
@@ -186,6 +194,8 @@ body {
 
 .player-2 .ship {
 	opacity: 0;
+}
+
 .attacks {
 	z-index: 2;
 }
@@ -223,10 +233,7 @@ body {
 	background-position: center;
 	background-size: contain;
 	background-repeat: no-repeat;
-	border: none;
-	outline: none;
 	transform: rotate(-4deg);
-	color: white;
 	font-size: xx-large;
 }
 
