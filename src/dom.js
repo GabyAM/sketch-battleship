@@ -16,6 +16,7 @@ export function getGridCoords(grid, event) {
 	return getCoords(event);
 }
 
+const cellSize = 25;
 class DomShip {
 	constructor(length, isRotated = false, id = getId()) {
 		this.length = length;
@@ -29,11 +30,11 @@ class DomShip {
 	//not really necessary
 	adjustSize() {
 		if (this.isRotated) {
-			this.element.style.width = "30px";
-			this.element.style.height = `${30 * this.length}px`;
+			this.element.style.width = `${cellSize}px`;
+			this.element.style.height = `${cellSize * this.length}px`;
 		} else {
-			this.element.style.width = `${30 * this.length}px`;
-			this.element.style.height = "30px";
+			this.element.style.width = `${cellSize * this.length}px`;
+			this.element.style.height = `${cellSize}px`;
 		}
 	}
 
@@ -58,6 +59,9 @@ class DomShip {
 		shipImage.className = `ship-image length-${this.length}`;
 		shipImage.style.width = `${this.length * 30}px`;
 		shipImage.style.height = "30px";
+
+		shipImage.style.width = `${this.length * cellSize}px`;
+		shipImage.style.height = `${cellSize}px`;
 
 		ship.dataset.length = this.length;
 		ship.dataset.id = this.id;
