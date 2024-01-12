@@ -100,28 +100,6 @@ export const domController = (function () {
 	pubsub.subscribe("attackPerformed", displayTurn);
 	pubsub.subscribe("clearButtonPressed", showShipsMenu);
 	pubsub.subscribe("sortButtonPressed", hideShipsMenu);
-
-	// setTimeout(() => {
-	// 	const shipsArea = document.querySelector(".ships-area");
-	// 	const firstShip = new DomShip(5);
-	// 	pubsub.publish("shipCreated", firstShip);
-	// 	const secondShip = new DomShip(4);
-	// 	pubsub.publish("shipCreated", secondShip);
-	// 	const thirdShip = new DomShip(3);
-	// 	pubsub.publish("shipCreated", thirdShip);
-	// 	const fourthShip = new DomShip(3);
-	// 	pubsub.publish("shipCreated", fourthShip);
-	// 	const fifthShip = new DomShip(2);
-	// 	pubsub.publish("shipCreated", fifthShip);
-	// 	shipsArea.appendChild(firstShip.element);
-	// 	shipsArea.appendChild(secondShip.element);
-	// 	shipsArea.appendChild(thirdShip.element);
-	// 	shipsArea.appendChild(fourthShip.element);
-	// 	shipsArea.appendChild(fifthShip.element);
-	// 	shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
-	// 		ship.style.top = `${index * 50}px`;
-	// 	});
-	// }, 0);
 	pubsub.subscribe("gameEnded", renderGameEndScreen);
 	pubsub.subscribe("gameReset", resetScreen);
 	pubsub.subscribe("beforeReset", resetScreen);
@@ -251,24 +229,26 @@ export const domController = (function () {
 		shipsArea.style.left = "0";
 
 		const firstShip = new DomShip(5);
-		pubsub.publish("shipCreated", firstShip);
-		const secondShip = new DomShip(4);
-		pubsub.publish("shipCreated", secondShip);
-		const thirdShip = new DomShip(3);
-		pubsub.publish("shipCreated", thirdShip);
-		const fourthShip = new DomShip(3);
-		pubsub.publish("shipCreated", fourthShip);
-		const fifthShip = new DomShip(2);
-		pubsub.publish("shipCreated", fifthShip);
 		shipsArea.appendChild(firstShip.element);
+		const secondShip = new DomShip(4);
 		shipsArea.appendChild(secondShip.element);
+		const thirdShip = new DomShip(3);
 		shipsArea.appendChild(thirdShip.element);
+		const fourthShip = new DomShip(3);
 		shipsArea.appendChild(fourthShip.element);
+		const fifthShip = new DomShip(2);
 		shipsArea.appendChild(fifthShip.element);
+
 		shipsArea.querySelectorAll(".ship").forEach((ship, index) => {
 			ship.style.top = `${(index + 2) * 50}px`;
 			ship.style.left = "20px";
 		});
+
+		pubsub.publish("shipCreated", firstShip);
+		pubsub.publish("shipCreated", secondShip);
+		pubsub.publish("shipCreated", thirdShip);
+		pubsub.publish("shipCreated", fourthShip);
+		pubsub.publish("shipCreated", fifthShip);
 		pubsub.publish("shipsMenuOpened");
 		setShipsAreaObserver();
 	}
