@@ -232,6 +232,20 @@ body {
 		background-image: url("./assets/water3b.png");
 	}
 }
+
+@keyframes changeAttackBackground {
+	0%,
+	100% {
+		background-image: url("./assets/explosion1.png");
+	}
+	33% {
+		background-image: url("./assets/explosion2.png");
+	}
+	66% {
+		background-image: url("./assets/explosion3.png");
+	}
+}
+
 @keyframes moveShip {
 	0%,
 	100% {
