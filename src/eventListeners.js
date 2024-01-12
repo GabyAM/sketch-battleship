@@ -104,10 +104,18 @@ startGameButton.addEventListener("pointerleave", () => {
 	startGameButton.classList.remove("hovering");
 });
 
+function getNonShipElementFromPoint(x, y) {
+	return document
+		.elementsFromPoint(x, y)
+		.find(
+			(element) =>
+				!element.classList.contains("ship") &&
+				!element.classList.contains("ship-image")
+		);
+}
 //receives instance so it can use it's functions
 export function addShipEvents(shipInstance) {
 	const ship = shipInstance.element;
-	const shipsGrid = document.querySelector(".grid.ships");
 
 	let isDown = false;
 	let isDragging = false;
@@ -125,6 +133,7 @@ export function addShipEvents(shipInstance) {
 		startY = e.clientY;
 		offsetX = startX - rect.left;
 		offsetY = startY - rect.top;
+		const shipsGrid = document.querySelector(".ships");
 		if (ship.parentElement === shipsGrid) {
 			({ row: prevRow, col: prevCol } = getGridCoords(shipsGrid, e));
 		}
@@ -139,9 +148,7 @@ export function addShipEvents(shipInstance) {
 				isDragging = true;
 				clickEnabled = false;
 			}
-			if (ship.style.position === "static") {
-				ship.style.position = "absolute";
-			}
+			ship.style.position = "absolute";
 			ship.style.left = `${e.clientX - offsetX}px`;
 			ship.style.top = `${e.clientY - offsetY}px`;
 		}
@@ -149,6 +156,7 @@ export function addShipEvents(shipInstance) {
 
 	window.addEventListener("pointerup", (e) => {
 		if (isDown && isDragging) {
+			const shipsGrid = document.querySelector(".ships");
 			const { row, col } = getGridCoords(shipsGrid, e);
 			shipInstance.row = row;
 			shipInstance.col = col;
@@ -156,22 +164,18 @@ export function addShipEvents(shipInstance) {
 				? row + shipInstance.length > 10 || col > 10
 				: row > 10 || col + shipInstance.length > 10;
 
-			if (!IsOutOfBounds) {
+			const dropTarget = getNonShipElementFromPoint(e.clientX, e.clientY);
+			if (dropTarget === shipsGrid && !IsOutOfBounds) {
 				const shipPlacedResultCallback = (result) => {
 					if (result) {
 						if (ship.parentElement !== shipsGrid) {
 							shipsGrid.appendChild(ship);
 						}
-						shipInstance.adjustPosition(/*, row, col*/);
+						shipInstance.adjustPosition();
 						ship.style.position = "static";
 					} else {
-						if (ship.parentElement === shipsGrid) {
-							ship.style.position = "static";
-							shipInstance.adjustPosition(prevRow, prevCol);
-						} else {
-							ship.style.top = prevTop;
-							ship.style.left = prevLeft;
-						}
+						ship.style.position = "static";
+						shipInstance.adjustPosition(prevRow, prevCol);
 					}
 					pubsub.unsubscribe(
 						`shipPlacedResult_${shipInstance.id}`,
@@ -183,11 +187,20 @@ export function addShipEvents(shipInstance) {
 					`shipPlacedResult_${shipInstance.id}`,
 					shipPlacedResultCallback
 				);
-
 				pubsub.publish("shipPlaced", {
 					cells: shipInstance.getCells(),
 					id: shipInstance.id,
+					player: getPlayerNumber(e),
 				});
+			} else {
+				if (ship.parentElement === shipsGrid) {
+					//this is repeated but eh
+					ship.style.position = "static";
+					shipInstance.adjustPosition(prevRow, prevCol);
+				} else {
+					ship.style.top = prevTop;
+					ship.style.left = prevLeft;
+				}
 			}
 		}
 		setTimeout(() => {
@@ -198,7 +211,11 @@ export function addShipEvents(shipInstance) {
 	});
 
 	ship.addEventListener("click", (e) => {
-		if (!isDragging && clickEnabled) {
+		if (
+			!isDragging &&
+			clickEnabled &&
+			ship.parentElement.classList.contains("ships")
+		) {
 			clickEnabled = false;
 			const shipRotatedResultCallback = (result) => {
 				if (result === false) {
@@ -218,6 +235,7 @@ export function addShipEvents(shipInstance) {
 			pubsub.publish("shipPlaced", {
 				cells: shipInstance.getCells(),
 				id: shipInstance.id,
+				player: getPlayerNumber(e),
 			});
 		}
 	});
