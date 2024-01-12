@@ -98,6 +98,7 @@ body {
 	background-size: 85%;
 	background-position: center;
 	background-repeat: no-repeat;
+	transition: opacity 0.8s;
 }
 
 .player-area.player-2 {
@@ -111,6 +112,7 @@ body {
 	display: grid;
 	animation: changeBoardBackground 0.5s infinite;
 	background-size: cover;
+	transition: opacity 0.8s;
 }
 
 .boards > div {
@@ -227,12 +229,27 @@ body {
 	color: white;
 	font-size: xx-large;
 }
+
+.card {
+	width: 100%;
+	height: 100%;
+	grid-area: 1 / 1 / 3 / 2;
+	background-size: 85%;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: opacity 0.8s;
 }
+.hidden {
+	opacity: 0;
+}
+
+.winner {
 	background-image: url("./assets/victory.png");
 }
-.player-area.loser {
+.loser {
 	background-image: url("./assets/defeat.png");
 }
+
 @keyframes changeBoardBackground {
 	0%,
 	100% {
