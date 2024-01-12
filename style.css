@@ -43,7 +43,15 @@ body {
 	grid-template-rows: repeat(10, 1fr);
 	grid-template-columns: repeat(10, 1fr);
 }
+.ships.grid .ship.sunk {
+	opacity: 0.4;
+	animation: none;
 }
+
+.ship {
+	transition: opacity 0.5s;
+}
+
 .ship-image {
 	width: 100%;
 	height: 100%;
@@ -131,6 +139,8 @@ body {
 	z-index: 3;
 }
 
+.player-2 .ship {
+	opacity: 0;
 .attacks {
 	z-index: 2;
 }
