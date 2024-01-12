@@ -207,6 +207,9 @@ export class Player {
 	}
 
 	attack(row, col) {
+		if (this.enemyGameboard.isOutOfBounds(row, col)) {
+			throw new Error("");
+		}
 		this.enemyGameboard.receiveHit(row, col);
 		return this.enemyGameboard.getValueAt(row, col);
 	}

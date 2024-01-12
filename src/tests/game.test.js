@@ -174,4 +174,24 @@ it("Game controller module methods test", () => {
 	expect(gameController.playTurn({ row: 5, col: 2 })).toBe(true);
 	expect(gameController.getCurrentPlayer().name).toBe("player 2");
 	expect(gameController.playTurn({ row: 9, col: 9 })).toBe(false);
+describe("Player method test", () => {
+	let gameboard;
+	let player;
+	beforeEach(() => {
+		gameboard = new GameBoard();
+		player = new Player("player", gameboard);
+	});
+	it("attack method works", () => {
+		gameboard.placeShip(shipCells, 1);
+		expect(player.attack(0, 0)).toBe(true);
+		expect(player.attack(1, 0)).toBe(false);
+
+		expect(gameboard.getValueAt(0, 0)).toBe(true);
+		expect(gameboard.getValueAt(1, 0)).toBe(false);
+	});
+	it("attack method throws an error when position is out of bounds", () => {
+		expect(() => {
+			player.attack(12, 13);
+		}).toThrow("");
+	});
 });
