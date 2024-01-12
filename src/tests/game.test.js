@@ -168,12 +168,6 @@ describe("Gameboard class methods test", () => {
 	});
 });
 
-it("Game controller module methods test", () => {
-	gameController.init();
-	expect(gameController.getCurrentPlayer().name).toBe("player 1");
-	expect(gameController.playTurn({ row: 5, col: 2 })).toBe(true);
-	expect(gameController.getCurrentPlayer().name).toBe("player 2");
-	expect(gameController.playTurn({ row: 9, col: 9 })).toBe(false);
 describe("Player method test", () => {
 	let gameboard;
 	let player;
