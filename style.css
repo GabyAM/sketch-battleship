@@ -193,7 +193,17 @@ body {
 	animation: changeAttackBackground 1s infinite;
 	background-size: cover;
 }
-.player-area.winner {
+
+.smoke {
+	position: relative;
+	top: -20px;
+	width: var(--cell-size);
+	height: var(--cell-size);
+	animation: changeSmokeBackground 1s infinite;
+	background-size: cover;
+	pointer-events: none;
+}
+
 #start {
 	width: 400px;
 	height: 80px;
@@ -243,6 +253,19 @@ body {
 	}
 	66% {
 		background-image: url("./assets/explosion3.png");
+	}
+}
+
+@keyframes changeSmokeBackground {
+	0%,
+	100% {
+		background-image: url("./assets/smoke1.png");
+	}
+	33% {
+		background-image: url("./assets/smoke2.png");
+	}
+	66% {
+		background-image: url("./assets/smoke3.png");
 	}
 }
 
