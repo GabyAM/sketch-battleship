@@ -27,6 +27,52 @@ export function removeBoardEvents() {
 
 const startGameButton = document.querySelector("#start");
 
+function resetButtonPressedCallback() {
+	startGameButton.removeEventListener("click", resetButtonPressedCallback);
+
+	function gameResetCallback() {
+		enableActionButtons();
+		changeMainButtonEvent();
+		pubsub.unsubscribe("gameReset", gameResetCallback);
+	}
+	pubsub.subscribe("gameReset", gameResetCallback);
+
+	const playerOneShips = [...document.querySelectorAll(".player-1 .ship")];
+	const playerTwoShips = [...document.querySelectorAll(".player-2 .ship")];
+	const gameEnded =
+		playerOneShips.every((ship) => ship.classList.contains("sunk")) ||
+		playerTwoShips.every((ship) => ship.classList.contains("sunk"));
+
+	if (gameEnded) {
+		setTimeout(() => {
+			pubsub.publish("resetButtonPressed");
+		}, 800);
+	} else {
+		pubsub.publish("beforeReset", gameEnded);
+		setTimeout(() => {
+			pubsub.publish("resetButtonPressed");
+		}, 800);
+	}
+}
+
+function changeMainButtonEvent() {
+	if (startGameButton.textContent === "Start Game") {
+		startGameButton.removeEventListener(
+			"click",
+			startButtonPressedCallback
+		);
+		startGameButton.addEventListener("click", resetButtonPressedCallback);
+		startGameButton.textContent = "Reset Game";
+	} else {
+		startGameButton.removeEventListener(
+			"click",
+			resetButtonPressedCallback
+		);
+		startGameButton.addEventListener("click", startButtonPressedCallback);
+		startGameButton.textContent = "Start Game";
+	}
+}
+
 function startButtonPressedCallback() {
 	function gameStartCallback() {
 		disableActionButtons();
@@ -207,4 +253,19 @@ function disableActionButtons() {
 		button.disabled = true;
 		button.parentElement.classList.add("disabled");
 	});
+function enableButton(button) {
+	button.disabled = false;
+	button.parentElement.classList.remove("disabled");
+}
+
+export function enableClearButton() {
+	enableButton(clearBoardButton);
+}
+function enableSortButton() {
+	enableButton(sortShipsButton);
+}
+
+function enableActionButtons() {
+	enableSortButton();
+	enableClearButton();
 }

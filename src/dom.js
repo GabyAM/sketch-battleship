@@ -122,6 +122,9 @@ export const domController = (function () {
 	// 		ship.style.top = `${index * 50}px`;
 	// 	});
 	// }, 0);
+	pubsub.subscribe("gameEnded", renderGameEndScreen);
+	pubsub.subscribe("gameReset", resetScreen);
+	pubsub.subscribe("beforeReset", resetScreen);
 
 	function createDomBoard(length, index) {
 		function createCell() {
@@ -297,8 +300,35 @@ export const domController = (function () {
 		});
 	}
 
+	function toggleGameVisibility() {
+		const boardAreas = document.querySelectorAll(".boards");
+		const buttonContainers = document.querySelectorAll(".button-container");
+		const gameElements = [...boardAreas].concat([...buttonContainers]);
+		if (document.querySelector(".boards").style.opacity === "0") {
+			gameElements.forEach((element) => {
+				element.style.visibility = "visible";
+			});
+			gameElements.forEach((element) => {
+				element.style.opacity = "1";
+			});
+		} else {
+			gameElements.forEach((element) => {
+				element.style.opacity = "0";
+			});
+			setTimeout(() => {
+				gameElements.forEach((element) => {
+					element.style.visibility = "hidden";
+				});
+			}, 800);
+		}
+	}
+
 	function renderGameEndScreen(winner) {
-		document.querySelector(".game").style.padding = "0";
+		function createEndCard(result) {
+			const card = document.createElement("div");
+			card.className = `${result} card hidden`;
+			return card;
+		}
 
 		let winnerBoard;
 		let loserBoard;
@@ -310,9 +340,43 @@ export const domController = (function () {
 			loserBoard = document.querySelector(".player-area.player-1");
 		}
 
-		winnerBoard.innerHTML = "";
-		loserBoard.innerHTML = "";
-		winnerBoard.classList.add("winner");
-		loserBoard.classList.add("loser");
+		toggleGameVisibility();
+		const winnerCard = createEndCard("winner");
+		winnerBoard.appendChild(winnerCard);
+		const loserCard = createEndCard("loser");
+		loserBoard.appendChild(loserCard);
+
+		//ugly code :)
+		document.querySelector(".game").style.padding = "0";
+		setTimeout(() => {
+			winnerCard.classList.remove("hidden");
+			loserCard.classList.remove("hidden");
+		}, 0);
+	}
+
+	function removeGameEndScreen() {
+		const firstCard = document.querySelector(".player-1 .card");
+		const secondCard = document.querySelector(".player-2 .card");
+		firstCard.classList.add("hidden");
+		secondCard.style.opacity = "0";
+		setTimeout(() => {
+			document.querySelector(".player-1").removeChild(firstCard);
+			document.querySelector(".player-2").removeChild(secondCard);
+			document.querySelector(".game").style.paddingBottom = "5%";
+		}, 800);
+	}
+
+	function resetScreen(gameEnded) {
+		if (gameEnded) {
+			removeGameEndScreen();
+			setTimeout(() => {
+				toggleGameVisibility();
+			}, 800);
+		} else {
+			toggleGameVisibility();
+			setTimeout(() => {
+				toggleGameVisibility();
+			}, 800);
+		}
 	}
 })();

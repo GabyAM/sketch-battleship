@@ -359,6 +359,7 @@ export const gameController = (function () {
 	let gameBoard1;
 	let player2;
 	let gameBoard2;
+	let gameStatus = "Not started"; //"Not started" || "Started" || "Ended"
 
 	function updateBoards() {
 		pubsub.publish("boardsUpdated", [
@@ -375,9 +376,16 @@ export const gameController = (function () {
 
 		player1 = new Player("player 1", gameBoard2);
 		player2 = new AiPlayer("player 2", gameBoard1);
+		gameStatus = "Not started";
 
 		currentPlayer = player1;
 		updateBoards();
+	}
+
+	function resetGame() {
+		const gameEnded = gameStatus === "Ended";
+		init();
+		pubsub.publish("gameReset", gameEnded);
 	}
 
 	function mapShips(ships) {
@@ -398,6 +406,7 @@ export const gameController = (function () {
 			Object.keys(gameBoard2.ships).length === 5
 		) {
 			function gameStartedCallback() {
+				gameStatus = "Started";
 				pubsub.publish("gameStarted");
 				pubsub.unsubscribe("boardsRendered", gameStartedCallback);
 			}
@@ -462,6 +471,7 @@ export const gameController = (function () {
 		function turnDisplayedCallback() {
 			pubsub.unsubscribe("turnDisplayed", turnDisplayedCallback);
 			if (isGameOver()) {
+				gameStatus = "Ended";
 				pubsub.publish("gameEnded", getWinner());
 			} else {
 				pubsub.publish("turnPlayed", currentPlayer === player1 ? 1 : 2);
@@ -483,5 +493,6 @@ export const gameController = (function () {
 	pubsub.subscribe("sortButtonPressed", handleSortShips);
 	pubsub.subscribe("clearButtonPressed", handleClearBoard);
 	pubsub.subscribe("startButtonPressed", startGame);
+	pubsub.subscribe("resetButtonPressed", resetGame);
 	return { init, getCurrentPlayer, isGameOver, playTurn };
 })();
