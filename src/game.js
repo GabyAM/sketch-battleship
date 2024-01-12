@@ -155,7 +155,7 @@ export class GameBoard {
 		const moves = [
 			[1, 0],
 			[0, 1],
-		]; //later in the program, this should be the same const as in the AiPlayer class
+		];
 
 		const emptyCells = [];
 		for (let i = 0; i < this.board.length; i++) {
@@ -167,22 +167,21 @@ export class GameBoard {
 		const placeShipRandom = (length) => {
 			let placed = false;
 			while (placed === false) {
-				//selects random starting pos
 				const randomPos =
 					emptyCells[Math.floor(Math.random() * emptyCells.length)];
 				let row = randomPos[0];
 				let col = randomPos[1];
-				//chooses random direction
+
 				const randomMove =
 					moves[Math.floor(Math.random() * moves.length)];
 				const cellsArray = [[row, col]];
-				//calculates the ships cells
+
 				for (let i = 0; i < length - 1; i++) {
 					row += randomMove[0];
 					col += randomMove[1];
-					cellsArray.push([row, col]); //only sums once...
+					cellsArray.push([row, col]);
 				}
-				//checks if the ship was placed
+
 				if (this.placeShip(cellsArray, getId()) !== false) {
 					placed = true;
 					cellsArray.forEach((coords) => {
@@ -362,7 +361,6 @@ class AiPlayer extends Player {
 				col = Math.floor(Math.random() * 10);
 			}
 		}
-
 		return { row, col };
 	}
 }
@@ -424,7 +422,6 @@ export const gameController = (function () {
 				pubsub.publish("gameStarted");
 				pubsub.unsubscribe("boardsRendered", gameStartedCallback);
 			}
-			//sends board data and when they're rendered, starts the game
 			pubsub.subscribe("boardsRendered", gameStartedCallback);
 			updateBoards();
 		}

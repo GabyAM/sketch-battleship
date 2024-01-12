@@ -214,7 +214,7 @@ export const domController = (function () {
 		}
 	}
 
-	function styleSunkShip(boardNumber, id /*cells*/) {
+	function styleSunkShip(boardNumber, id) {
 		const shipsGrid = document.querySelectorAll(".ships.grid")[boardNumber];
 		const ship = shipsGrid.querySelector(`.ship[data-id="${id}"]`);
 		ship.classList.add("sunk");
