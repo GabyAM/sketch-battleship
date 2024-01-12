@@ -439,7 +439,6 @@ export const gameController = (function () {
 	}
 
 	function handleSortShips(player) {
-		console.log(player);
 		player === 1
 			? gameBoard1.placeShipsRandom()
 			: gameBoard2.placeShipsRandom();
@@ -448,7 +447,6 @@ export const gameController = (function () {
 	}
 
 	function handleClearBoard(player) {
-		console.log(player);
 		player === 1
 			? gameBoard1.initializeBoard()
 			: gameBoard2.initializeBoard();

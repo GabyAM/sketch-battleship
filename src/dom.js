@@ -183,8 +183,9 @@ export const domController = (function () {
 				if (board[i][j] === true || board[i][j] === false) {
 					const element = createAttackElement();
 					domBoard.appendChild(element);
-					element.style.gridRowStart = `${i + 1}`;
-					element.style.gridColumnStart = `${j + 1}`;
+					element.style.gridArea = `${i + 1} / ${j + 1} / ${
+						i + 1
+					} / ${j + 1}`;
 				}
 			}
 		}
@@ -194,7 +195,7 @@ export const domController = (function () {
 		boardArray.forEach((data, index) => {
 			const boardsArea = document.querySelectorAll(".boards")[index];
 			boardsArea.innerHTML = "";
-			const domBoard = createDomBoard(data.board.length, index);
+			createDomBoard(data.board.length, index);
 
 			const shipsBoard = createGridLayer("ships", index);
 			renderShips(shipsBoard, data.ships);
