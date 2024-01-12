@@ -1,14 +1,22 @@
 import { GameBoard, Player, Ship, gameController } from "../game.js";
-it("Ship class methods test", () => {
-	const ship = new Ship(4);
-	expect(ship.isSunk()).toBe(false);
-	ship.hit();
-	expect(ship.hitsReceived).toBe(1);
-	ship.hit();
-	ship.hit();
-	ship.hit();
-	expect(ship.hitsReceived).toBe(4);
-	expect(ship.isSunk()).toBe(true);
+describe("Ship class methods test", () => {
+	let ship;
+	beforeEach(() => {
+		ship = new Ship(4);
+	});
+	it("hit method works", () => {
+		expect(ship.hitsReceived).toBe(0);
+		ship.hit();
+		expect(ship.hitsReceived).toBe(1);
+	});
+	it("isSunk method works", () => {
+		for (let i = 0; i < 3; i++) {
+			ship.hit();
+			expect(ship.isSunk()).toBe(false);
+		}
+		ship.hit();
+		expect(ship.isSunk()).toBe(true);
+	});
 });
 
 it("Gameboard class methods test", () => {
