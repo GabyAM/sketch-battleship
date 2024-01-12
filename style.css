@@ -43,6 +43,12 @@ body {
 	grid-template-rows: repeat(10, 1fr);
 	grid-template-columns: repeat(10, 1fr);
 }
+
+.grid .ship {
+	animation: moveShip 1s infinite;
+	animation-timing-function: step-end;
+}
+
 .ships.grid .ship.sunk {
 	opacity: 0.4;
 	animation: none;
@@ -224,5 +230,23 @@ body {
 	}
 	66% {
 		background-image: url("./assets/water3b.png");
+	}
+}
+@keyframes moveShip {
+	0%,
+	100% {
+		transform: rotate(0deg);
+	}
+	20%,
+	80% {
+		transform-origin: right;
+		transform: rotate(1deg);
+	}
+	40% {
+		transform-origin: left;
+		transform: rotate(-1deg);
+	}
+	60% {
+		transform: rotate(2deg);
 	}
 }
