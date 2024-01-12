@@ -27,12 +27,6 @@ export class Ship {
 	}
 }
 
-/* gameBoard
-
-	board itself: a 10x10 matrix of null if there's no ship, or a reference to the ship if it's one
-	placeShip: should check if there's space for the ship according to the ship length
-
-*/
 export class GameBoard {
 	constructor() {
 		this.initializeBoard();
@@ -46,12 +40,18 @@ export class GameBoard {
 		this.ships = {};
 	}
 
+	isOutOfBounds(row, col) {
+		return row < 0 || row > 9 || col < 0 || col > 9;
+	}
+
 	placeShip(cells, id) {
 		//checks that is not out of bounds and that doesn't collide with any ship
-		const isOutOfBounds =
-			cells[cells.length - 1][0] > 9 || cells[cells.length - 1][1] > 9;
+
 		if (
-			isOutOfBounds ||
+			this.isOutOfBounds(
+				cells[cells.length - 1][0],
+				cells[cells.length - 1][1]
+			) ||
 			cells.some(
 				(pos) =>
 					(this.isShip(pos[0], pos[1]) &&
@@ -80,11 +80,10 @@ export class GameBoard {
 		return true;
 	}
 
-	wasAttacked(row, col) {
-		return typeof this.getValueAt(row, col) !== "object"; //means that is true or false, an attack
-	}
-
 	isShip(row, col) {
+		if (this.isOutOfBounds(row, col)) {
+			return false;
+		}
 		return (
 			this.board[row][col] !== null &&
 			typeof this.board[row][col] === "object"
@@ -92,12 +91,19 @@ export class GameBoard {
 	}
 
 	getShipAt(row, col) {
+		if (this.isOutOfBounds(row, col)) {
+			throw new Error("");
+		}
 		if (this.isShip(row, col)) {
 			return this.ships[this.board[row][col].id].ship;
 		}
 	}
 
+	//if it's a ship, return the ship if it was not attacked, in any other case return the attack result
 	getValueAt(row, col) {
+		if (this.isOutOfBounds(row, col)) {
+			throw new Error("");
+		}
 		if (this.isShip(row, col)) {
 			if (this.board[row][col].isHit === true) {
 				return true;
@@ -120,6 +126,14 @@ export class GameBoard {
 			this.board[row][col] = false;
 		}
 		return this.board[row][col];
+	}
+
+	wasAttacked(row, col) {
+		try {
+			return typeof this.getValueAt(row, col) !== "object";
+		} catch (e) {
+			return false;
+		}
 	}
 
 	isShipLeft() {
