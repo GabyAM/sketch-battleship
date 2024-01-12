@@ -4,6 +4,8 @@ import { pubsub } from "./pubsub.js";
 pubsub.subscribe("turnPlayed", handleBoardEvent);
 pubsub.subscribe("gameEnded", removeBoardEvents);
 pubsub.subscribe("shipCreated", addShipEvents);
+pubsub.subscribe("shipsMenuOpened", disableClearButton);
+pubsub.subscribe("shipsMenuClosed", enableClearButton);
 function handleBoardClick(event) {
 	if (event.target.classList.contains("attacks")) {
 		const { row, col } = getGridCoords(event.target, event);
@@ -251,11 +253,24 @@ actionButtons.forEach((button) => {
 	});
 });
 
+function disableButton(button) {
+	button.disabled = true;
+	button.parentElement.classList.add("disabled");
+}
+
+function disableSortButton() {
+	disableButton(sortShipsButton);
+}
+
+export function disableClearButton() {
+	disableButton(clearBoardButton);
+}
+
 function disableActionButtons() {
-	actionButtons.forEach((button) => {
-		button.disabled = true;
-		button.parentElement.classList.add("disabled");
-	});
+	disableSortButton();
+	disableClearButton();
+}
+
 function enableButton(button) {
 	button.disabled = false;
 	button.parentElement.classList.remove("disabled");
