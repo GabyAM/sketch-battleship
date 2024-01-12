@@ -10,9 +10,9 @@
 }
 
 body {
-	background: url(./assets/paper_background.jpg);
 	width: 100vw;
 	height: 100vh;
+	background: url(./assets/page_background.png);
 	background-size: cover;
 	overflow: hidden;
 }
@@ -21,6 +21,10 @@ body {
 	height: 90%;
 	/* width: 90%; */
 	margin: auto;
+	background-image: url("./assets/open_notebook.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
 	display: grid;
 	grid-template-columns: 1fr 7% 1fr;
 	aspect-ratio: 14.4 / 9;
