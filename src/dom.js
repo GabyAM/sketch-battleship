@@ -57,8 +57,13 @@ class DomShip {
 
 		ship.className = `ship`;
 		shipImage.className = `ship-image length-${this.length}`;
-		shipImage.style.width = `${this.length * 30}px`;
-		shipImage.style.height = "30px";
+		//There are two different images for ships with length 3
+		if (
+			this.length === 3 &&
+			document.querySelectorAll(".length-3").length % 2 !== 0
+		) {
+			shipImage.classList.add("alternative");
+		}
 
 		shipImage.style.width = `${this.length * cellSize}px`;
 		shipImage.style.height = `${cellSize}px`;

@@ -78,6 +78,9 @@ body {
 .ship-image.length-3 {
 	background-image: url("./assets/ship_length_3_a.png");
 }
+.ship-image.length-3.alternative {
+	background-image: url("./assets/ship_length_3_b.png");
+}
 
 .ship-image.length-4 {
 	background-image: url("./assets/ship_length_4.png");
