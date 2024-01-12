@@ -6,6 +6,7 @@ pubsub.subscribe("gameEnded", removeBoardEvents);
 pubsub.subscribe("shipCreated", addShipEvents);
 pubsub.subscribe("shipsMenuOpened", disableClearButton);
 pubsub.subscribe("shipsMenuClosed", enableClearButton);
+
 function handleBoardClick(event) {
 	if (event.target.classList.contains("attacks")) {
 		const { row, col } = getGridCoords(event.target, event);
@@ -88,10 +89,7 @@ function startButtonPressedCallback() {
 			.querySelectorAll(".attacks")[1]
 			.addEventListener("click", handleBoardClick);
 		pubsub.unsubscribe("gameStarted", gameStartCallback);
-		startGameButton.removeEventListener(
-			"click",
-			startButtonPressedCallback
-		);
+		changeMainButtonEvent();
 	}
 	pubsub.subscribe("gameStarted", gameStartCallback);
 	pubsub.publish("startButtonPressed");
