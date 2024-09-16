@@ -5,7 +5,7 @@ The classic game of battleship, on a unique sketch setting.
 ## Introduction
 
 This is a static website where the user can play a game of Battleship against the computer. The idea was to build a game with a more complex logic and write unit tests for it.\
-This project was created as a part of The Odin Project javascript course curriculum.
+This project was created as a part of The Odin Project javascript course curriculum.\
 <br/>
 <img width=400 alt="Screenshot of the game when it hasn't started" src="https://github.com/user-attachments/assets/7d2b8ad6-f818-43c6-95d8-10a79d99851f">
 <br/>
